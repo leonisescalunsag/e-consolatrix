@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
     color: '#0033FF' 
   },
   schoolFullName: { 
-    fontSize: 10, 
+    fontSize: 13, 
     color: '#fff', 
     opacity: 0.8, 
     marginTop: 5, 
@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
   slogan: { 
     color: '#fff', 
     textAlign: 'center', 
-    fontSize: 14, 
+    fontSize: 20, 
     fontStyle: 'italic', 
     paddingHorizontal: 40, 
     marginBottom: 35,
@@ -120,6 +120,8 @@ export const styles = StyleSheet.create({
   rectangleDot: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#fff', // White dots as per your latest screenshot
+    backgroundColor: '#fff', 
+    width: 25, // Starting width para sa interpolation
+    marginHorizontal: 4, // Para hindi dikit-dikit
   }
 });
