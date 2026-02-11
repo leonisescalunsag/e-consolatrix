@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   brandCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0d3d86d7', 
+    backgroundColor: '#1f62c7d7', 
     marginHorizontal: 20,
     padding: 20,
     borderRadius: 25,
