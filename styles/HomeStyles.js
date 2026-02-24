@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
   },
   menuCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.85)', 
-    width: (width / 2) - 30, // Standatd width para pantay
+    width: (width / 2) - 30, 
     height: 160,
     borderRadius: 25,
     marginBottom: 20,
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   centeredLastCard: {
-    // Saktong gitna gamit ang screen width minus card width
+    
     marginLeft: ((width - 40) / 2) - (((width / 2) - 30) / 2),
   },
   sideBorder: {
@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
     width: 65,
     height: 65,
     borderRadius: 35,
-    backgroundColor: '#EBF2FF', // Binalik ko yung light blue glow mo bro
+    backgroundColor: '#EBF2FF', 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,

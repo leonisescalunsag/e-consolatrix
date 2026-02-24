@@ -8,32 +8,19 @@ export default function LandingPage() {
   const router = useRouter();
   const pan = useRef(new Animated.ValueXY()).current;
 
-  // Logic para sa Rectangle Dots na nagha-highlight base sa swipe
+  // Pagination dots animation
   const getDotStyle = (index) => {
     const section = SWIPE_CONSTANTS.SWIPE_RANGE / 2;
-    
-    // Interpolation para sa Opacity
     const opacity = pan.x.interpolate({
-      inputRange: [
-        index === 0 ? 0 : section * (index - 0.5),
-        section * index,
-        index === 2 ? SWIPE_CONSTANTS.SWIPE_RANGE : section * (index + 0.5)
-      ],
+      inputRange: [index === 0 ? 0 : section * (index - 0.5), section * index, index === 2 ? SWIPE_CONSTANTS.SWIPE_RANGE : section * (index + 0.5)],
       outputRange: [0.3, 1, 0.3],
       extrapolate: 'clamp',
     });
-
-    // Interpolation para sa Width (humahaba yung active dot)
     const width = pan.x.interpolate({
-      inputRange: [
-        index === 0 ? 0 : section * (index - 0.5),
-        section * index,
-        index === 2 ? SWIPE_CONSTANTS.SWIPE_RANGE : section * (index + 0.5)
-      ],
-      outputRange: [25, 40, 25],
+      inputRange: [index === 0 ? 0 : section * (index - 0.5), section * index, index === 2 ? SWIPE_CONSTANTS.SWIPE_RANGE : section * (index + 0.5)],
+      outputRange: [25, 45, 25],
       extrapolate: 'clamp',
     });
-
     return { opacity, width };
   };
 
@@ -47,18 +34,12 @@ export default function LandingPage() {
       },
       onPanResponderRelease: (e, gestureState) => {
         if (gestureState.dx > SWIPE_CONSTANTS.SWIPE_RANGE * 0.75) {
-          Animated.spring(pan.x, {
-            toValue: SWIPE_CONSTANTS.SWIPE_RANGE,
-            useNativeDriver: false,
-          }).start(() => {
+          Animated.spring(pan.x, { toValue: SWIPE_CONSTANTS.SWIPE_RANGE, useNativeDriver: false }).start(() => {
             router.push('/login');
             setTimeout(() => pan.x.setValue(0), 1000);
           });
         } else {
-          Animated.spring(pan.x, {
-            toValue: 0,
-            useNativeDriver: false,
-          }).start();
+          Animated.spring(pan.x, { toValue: 0, useNativeDriver: false }).start();
         }
       },
     })
@@ -71,11 +52,19 @@ export default function LandingPage() {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
+        {/* GRADIENT: Transparent sa taas/gitna, Solid Blue sa baba */}
         <LinearGradient 
-          colors={['rgba(13, 62, 134, 0.8)', 'transparent', '#0D3E86']} 
+          colors={[
+            'rgba(13, 62, 134, 0.2)', // Malabnaw sa taas
+            'transparent',            // Transparent sa gitna para kita ang building
+            'rgba(13, 62, 134, 0.7)', // Pa-solid na blue
+            'rgba(13, 62, 134, 1)'    // Solid Blue sa baba
+          ]} 
+          locations={[0, 0.4, 0.7, 1]} 
           style={styles.gradientOverlay}
         >
           
+          {/* CENTERED HEADER SECTION */}
           <View style={styles.headerSection}>
             <Image source={require('../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.brandTitle}>
@@ -84,31 +73,21 @@ export default function LandingPage() {
             <Text style={styles.schoolFullName}>CONSOLATRIX COLLEGE OF TOLEDO CITY, INC.</Text>
           </View>
 
+          {/* BOTTOM CONTENT */}
           <View style={styles.bottomSection}>
             <Text style={styles.slogan}>
-              "One platform, one community — informed, connected, e-Consolatrix."
+              "One platform, one community —{"\n"}informed, connected, e-Consolatrix."
             </Text>
 
-            {/* FIGMA RECTANGLE DOTS */}
             <View style={styles.paginationContainer}>
               {[0, 1, 2].map((i) => (
-                <Animated.View 
-                  key={i} 
-                  style={[styles.rectangleDot, getDotStyle(i)]} 
-                />
+                <Animated.View key={i} style={[styles.rectangleDot, getDotStyle(i)]} />
               ))}
             </View>
 
             <View style={styles.swipeTrack}>
-              <Animated.View 
-                style={[
-                  styles.swipeFill, 
-                  { width: Animated.add(pan.x, SWIPE_CONSTANTS.KNOB_SIZE) }
-                ]} 
-              />
-              
+              <Animated.View style={[styles.swipeFill, { width: Animated.add(pan.x, SWIPE_CONSTANTS.KNOB_SIZE) }]} />
               <Text style={styles.swipeGuideText}>{">>>"}</Text>
-              
               <Animated.View 
                 style={[styles.swipeKnob, { transform: [{ translateX: pan.x }] }]} 
                 {...panResponder.panHandlers}

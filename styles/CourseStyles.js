@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: 50,
-    paddingHorizontal: 25, // In-adjust ko sa 25 para match sa Home
+    paddingHorizontal: 25, 
     paddingBottom: 20,
   },
   headerTitle: { 
@@ -43,8 +43,8 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   courseCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)', // Match sa menuCard ng Home
-    borderRadius: 25, // Match sa Home menuCard
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', 
+    borderRadius: 25, 
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   colorBar: { 
-    width: 8, // Match sa sideBorder ng Home
+    width: 8, 
     height: '100%' 
   },
   cardInfo: { 
@@ -67,16 +67,16 @@ export const styles = StyleSheet.create({
   },
   courseName: { 
     fontSize: 13, 
-    color: '#0D3E86', // Ginawa kong blue para match sa menuTitle ng Home
+    color: '#0D3E86', 
     lineHeight: 18 
   },
-  // IDENTICAL BOTTOM TAB SA HOME.JSX
+  
   bottomTab: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
     height: 85,
-    backgroundColor: '#11418a98', // Saktong color mo bro
+    backgroundColor: '#11418a98', 
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
