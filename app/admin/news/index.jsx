@@ -11,9 +11,9 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 // ✅ CATEGORY COLORS
 const CATEGORY_COLORS = {
-  'Announcements': '#3b82f6',
-  'Events': '#a855f7',
-  'Achievements': '#f59e0b',
+  'Announcements': '#3b82f6', // Blue
+  'Events': '#a855f7',        // Purple
+  'Achievements': '#f59e0b',  // Gold/Orange
 };
 
 export default function NewsManagement() {
@@ -75,6 +75,7 @@ export default function NewsManagement() {
     ? news 
     : news.filter(item => item.category?.toLowerCase() === filter.toLowerCase());
 
+  // ✅ Get category color
   const getCategoryColor = (category) => {
     return CATEGORY_COLORS[category] || '#666';
   };
@@ -161,9 +162,11 @@ export default function NewsManagement() {
               </View>
               <Text style={styles.newsTitle}>{item.title}</Text>
               <Text style={styles.newsDesc} numberOfLines={2}>{item.description}</Text>
-              
-              {/* ✅ ACTIONS ONLY - NO VIEWS */}
               <View style={styles.newsFooter}>
+                <View style={styles.views}>
+                  <Ionicons name="eye-outline" size={14} color="#999" />
+                  <Text style={styles.viewsText}>{item.views || 0}</Text>
+                </View>
                 <View style={styles.actions}>
                   <TouchableOpacity 
                     onPress={() => router.push(`/admin/news/edit?id=${item.id}`)}
@@ -332,6 +335,7 @@ const styles = StyleSheet.create({
     padding: 0,
     overflow: 'hidden',
   },
+  // ✅ COLOR-CODED STRIP
   categoryStrip: {
     height: 5,
     width: '100%',
@@ -368,14 +372,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular',
   },
   newsTitle: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#1A1A2E',
     marginBottom: 4,
     fontFamily: 'Montserrat-Bold',
   },
   newsDesc: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
     marginBottom: 12,
     lineHeight: 20,
@@ -383,8 +387,18 @@ const styles = StyleSheet.create({
   },
   newsFooter: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  views: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  viewsText: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'Montserrat-Regular',
   },
   actions: {
     flexDirection: 'row',
