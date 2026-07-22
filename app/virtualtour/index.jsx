@@ -17,7 +17,7 @@ const ROOMS = [
     name: 'Audio-Visual Room (AVR)',
     category: 'Facilities',
     description: 'A fully-equipped audio-visual room for school presentations, seminars, and events.',
-    image: require('../../assets/images/sample360.jpg'),
+    image: require('../../assets/images/avr1.jpg'),
     icon: 'videocam-outline',
     color: '#FF6B35',
   },
@@ -26,7 +26,7 @@ const ROOMS = [
     name: 'School Library',
     category: 'Facilities',
     description: 'A peaceful, air-conditioned library with a vast collection of books and research materials.',
-    image: require('../../assets/images/true.png'),
+    image: require('../../assets/images/library.jpg'),
     icon: 'library-outline',
     color: '#0D3E86',
   },
@@ -44,7 +44,7 @@ const ROOMS = [
     name: 'Computer Lab 101',
     category: 'Laboratories',
     description: 'A modern computer laboratory equipped with the latest computers and software.',
-    image: { uri: 'https://via.placeholder.com/800x400/1E90FF/FFFFFF?text=Comp+Lab+101' },
+    image: require('../../assets/images/lab2.jpg'),
     icon: 'desktop-outline',
     color: '#1E90FF',
   },
@@ -53,7 +53,7 @@ const ROOMS = [
     name: 'Computer Lab 102',
     category: 'Laboratories',
     description: 'Another well-equipped computer lab for programming and IT training.',
-    image: { uri: 'https://via.placeholder.com/800x400/32CD32/FFFFFF?text=Comp+Lab+102' },
+    image: require('../../assets/images/lab2.jpg'),
     icon: 'laptop-outline',
     color: '#32CD32',
   },
@@ -71,7 +71,7 @@ const ROOMS = [
     name: 'Covered Court',
     category: 'Sports',
     description: 'A spacious covered court for basketball, volleyball, and school events.',
-    image: { uri: 'https://via.placeholder.com/800x400/FF4500/FFFFFF?text=Covered+Court' },
+    image: require('../../assets/images/court.jpg'),
     icon: 'basketball-outline',
     color: '#FF4500',
   },
@@ -80,7 +80,7 @@ const ROOMS = [
     name: 'CCTC Grounds',
     category: 'Outdoor',
     description: 'Beautifully landscaped school grounds with gardens and open spaces.',
-    image: { uri: 'https://via.placeholder.com/800x400/32CD32/FFFFFF?text=CCTC+Grounds' },
+    image: require('../../assets/images/ground.jpg'),
     icon: 'leaf-outline',
     color: '#32CD32',
   },
@@ -138,6 +138,8 @@ const ROOMS = [
     icon: 'medkit-outline',
     color: '#DC143C',
   },
+
+  
 ];
 
 // ✅ ROOM CARD
