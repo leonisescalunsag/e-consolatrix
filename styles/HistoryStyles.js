@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular',
   },
 
-  // ✅ CORE VALUES (NEW)
+  // ✅ CORE VALUES
   coreValueCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -180,6 +180,98 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
     fontFamily: 'Montserrat-Regular',
     marginTop: 2,
+  },
+
+  // ✅ GRADUATE ATTRIBUTES
+  graduateItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    paddingVertical: 4,
+  },
+  graduateBullet: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 8,
+    marginRight: 12,
+    flexShrink: 0,
+  },
+  graduateText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#2D3748',
+    lineHeight: 22,
+    fontFamily: 'Montserrat-Regular',
+  },
+
+  // ✅ SCHOOL SEAL
+  sealContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+    padding: 16,
+    backgroundColor: 'rgba(13, 62, 134, 0.04)',
+    borderRadius: 16,
+  },
+  sealLogo: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    resizeMode: 'contain',
+    backgroundColor: '#fff',
+    padding: 10,
+  },
+  sealExplanation: {
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
+  sealText: {
+    fontSize: 14,
+    color: '#2D3748',
+    lineHeight: 22,
+    marginBottom: 10,
+    fontFamily: 'Montserrat-Regular',
+    textAlign: 'justify',
+  },
+  sealHighlight: {
+    color: '#E31E24',
+    fontWeight: '700',
+    fontFamily: 'Montserrat-Bold',
+  },
+
+  // ✅ INSTITUTIONAL OBJECTIVES
+  objectiveItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 14,
+    backgroundColor: 'rgba(255, 107, 53, 0.05)',
+    padding: 14,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF6B35',
+  },
+  objectiveNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  objectiveNumberText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  objectiveText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#2D3748',
+    lineHeight: 22,
+    fontFamily: 'Montserrat-Regular',
   },
 
   // ✅ CAROUSEL

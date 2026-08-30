@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// ITO YUNG CONFIG MO (i-paste mo lang)
+// ✅ YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAIUESyNJo_sBOfEvH1ko0BV_6HBhD6uSk",
   authDomain: "smartlift-a2f85.firebaseapp.com",
@@ -14,16 +14,16 @@ const firebaseConfig = {
   appId: "1:734042931459:web:f454b87d0f088e1f112936"
 };
 
-// Initialize Firebase
+// ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with persistence
+// ✅ Initialize Auth with persistence
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
 
-// Initialize Firestore
+// ✅ Initialize Firestore
 export const db = getFirestore(app);
 
-// Initialize Storage
+// ✅ Initialize Storage (for images)
 export const storage = getStorage(app);
