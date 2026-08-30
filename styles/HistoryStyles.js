@@ -1,0 +1,364 @@
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+  container: { flex: 1 },
+  overlay: { flex: 1, backgroundColor: 'rgba(13, 62, 134, 0.55)' },
+  
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  headerTitle: { 
+    fontSize: 28, 
+    color: '#fff', 
+    fontWeight: '800',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+  },
+  
+  scrollContent: { 
+    paddingHorizontal: 20, 
+    paddingBottom: 120 
+  },
+
+  // ✅ MAGAZINE CARD
+  magazineCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    marginBottom: 25,
+    padding: 24,
+    overflow: 'hidden',
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    borderTopWidth: 6,
+    borderTopColor: '#E31E24',
+  },
+  
+  magazineHeader: {
+    marginBottom: 8,
+  },
+  magazineTag: {
+    backgroundColor: '#E31E24',
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  magazineTagText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  magazineTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#0D3E86',
+    lineHeight: 34,
+  },
+  magazineDivider: {
+    width: 50,
+    height: 4,
+    backgroundColor: '#E31E24',
+    borderRadius: 2,
+    marginVertical: 12,
+  },
+  magazineBodyText: {
+    fontSize: 15,
+    color: '#1A202C',
+    lineHeight: 26,
+    textAlign: 'justify',
+    fontFamily: 'Montserrat-Regular',
+  },
+  magazineSubtext: {
+    fontSize: 16,
+    color: '#0D3E86',
+    fontWeight: '600',
+    marginBottom: 16,
+    fontStyle: 'italic',
+    fontFamily: 'Montserrat-Medium',
+  },
+
+  highlightText: {
+    color: '#0D3E86',
+    fontWeight: '700',
+  },
+
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+    backgroundColor: 'rgba(13, 62, 134, 0.04)',
+    padding: 16,
+    borderRadius: 16,
+  },
+  schoolLogo: { 
+    width: 90, 
+    height: 90,
+    resizeMode: 'contain',
+  },
+
+  // ✅ MISSION ITEMS
+  missionItem: { 
+    flexDirection: 'row', 
+    marginBottom: 14, 
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(13, 62, 134, 0.03)',
+    padding: 14,
+    borderRadius: 14,
+    borderLeftWidth: 3,
+    borderLeftColor: '#32CD32',
+  },
+  missionNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#32CD32',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginTop: 2,
+  },
+  missionNumberText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  missionText: { 
+    flex: 1, 
+    fontSize: 14, 
+    color: '#2D3748', 
+    lineHeight: 22, 
+    textAlign: 'justify',
+    fontFamily: 'Montserrat-Regular',
+  },
+
+  // ✅ CORE VALUES (NEW)
+  coreValueCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(13, 62, 134, 0.03)',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0D3E86',
+  },
+  coreValueIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  coreValueContent: {
+    flex: 1,
+  },
+  coreValueTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A202C',
+    fontFamily: 'Montserrat-Bold',
+  },
+  coreValueDesc: {
+    fontSize: 13,
+    color: '#4A5568',
+    lineHeight: 18,
+    fontFamily: 'Montserrat-Regular',
+    marginTop: 2,
+  },
+
+  // ✅ CAROUSEL
+  carouselContainer: {
+    marginVertical: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#F5F5F5',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    width: '100%',
+  },
+  carouselScroll: {
+    height: 200,
+  },
+  carouselSlide: {
+    height: 200,
+    borderRadius: 16,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  carouselImage: {
+    width: '100%',
+    height: '100%',
+  },
+  carouselGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+  },
+  carouselCaptionContainer: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    zIndex: 3,
+  },
+  carouselCaptionWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  carouselCaption: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
+    fontFamily: 'Montserrat-Medium',
+  },
+  carouselDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 10,
+  },
+  carouselDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+  },
+  carouselDotActive: {
+    width: 28,
+    backgroundColor: '#E31E24',
+    borderRadius: 5,
+  },
+  imageCounter: {
+    position: 'absolute',
+    top: 12,
+    right: 16,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 5,
+  },
+  imageCounterText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: 'Montserrat-Medium',
+  },
+
+  // ✅ IMAGE VIEWER
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blurBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalTouchArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 25,
+    padding: 5,
+  },
+  imageViewerContainer: {
+    width: width * 0.9,
+    maxHeight: '70%',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
+    overflow: 'hidden',
+    padding: 16,
+    elevation: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 30,
+    zIndex: 5,
+  },
+  imageViewer: {
+    width: '100%',
+    height: 350,
+    borderRadius: 16,
+  },
+  imageViewerFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 16,
+  },
+  imageViewerCaption: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A202C',
+    textAlign: 'center',
+    fontFamily: 'Montserrat-Medium',
+  },
+
+  // ✅ BOTTOM TAB
+  bottomTab: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: 85,
+    backgroundColor: '#11418a98',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingBottom: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 5,
+  },
+  tabItem: { 
+    alignItems: 'center', 
+    flex: 1 
+  },
+  tabLabel: { 
+    fontSize: 11, 
+    marginTop: 4, 
+    fontWeight: '600',
+    color: '#fff',
+  },
+});
