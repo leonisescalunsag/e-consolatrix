@@ -218,7 +218,7 @@ export const styles = StyleSheet.create({
   },
   teacherPos: {
     fontSize: 10,
-    color: '#666',
+    color: '#757474',
     textAlign: 'center',
     fontFamily: 'Montserrat-Regular',
   },
