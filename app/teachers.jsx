@@ -403,9 +403,9 @@ export default function TeacherDirectory() {
             <View style={styles.headerWrapper}>
               <View style={styles.headerRedAccent} />
               <View style={styles.headerBlueBox}>
-                <Image source={require('../assets/images/logotrue1.jpg')} style={styles.headerLogo} />
+                <Image source={require('../assets/images/bg2.png')} style={styles.headerLogo} />
                 <View style={{ marginLeft: 12, flex: 1 }}>
-                  <Text style={styles.headerTitle} numberOfLines={1}>Teachers Directory</Text>
+                  <Text style={styles.headerTitle} numberOfLines={1}>Faculty & Staff</Text>
                   <Text style={styles.headerSub} numberOfLines={1}>Consolatrix College of Toledo City</Text>
                 </View>
               </View>

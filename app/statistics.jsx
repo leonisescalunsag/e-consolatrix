@@ -5,63 +5,70 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { db } from '../config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import { styles } from '../styles/StatisticsStyles';
+
+// ✅ HARDCODED DATA - based sa Faculty & Staff list
+const FACULTY_DATA = {
+  elementary: 7,
+  jhs: 15,
+  shs: 22,
+  college: 21,
+  nonTeaching: 17,
+  maintenance: 5,
+  totalTeachers: 7 + 15 + 22 + 21, // = 65
+};
+
+const PROGRAMS_DATA = {
+  collegePrograms: 4, // BSHM, BSIT, EDUC, BSENTREP
+  shsStrands: 7,      // STEM, HUMSS, ABM, TVL, ICT, BE, Hospitality
+  totalPrograms: 11,
+};
+
+const SCHOOL_INFO = {
+  founded: '1961',
+  location: 'Toledo City, Cebu',
+  type: 'Catholic Education',
+};
 
 export default function StatisticsScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    teachers: 0,
-    collegePrograms: 0,
-    shsStrands: 0,
-    totalPrograms: 0,
-    years: 65,
-    founded: '1961',
-    location: 'Toledo City, Cebu',
-    type: 'Catholic Education',
+    // Faculty breakdown
+    elementaryTeachers: FACULTY_DATA.elementary,
+    jhsTeachers: FACULTY_DATA.jhs,
+    shsTeachers: FACULTY_DATA.shs,
+    collegeProfessors: FACULTY_DATA.college,
+    totalTeachers: FACULTY_DATA.totalTeachers,
+    // Non-teaching
+    nonTeachingStaff: FACULTY_DATA.nonTeaching,
+    maintenancePersonnel: FACULTY_DATA.maintenance,
+    // Total personnel
+    totalPersonnel: FACULTY_DATA.totalTeachers + FACULTY_DATA.nonTeaching + FACULTY_DATA.maintenance,
+    // Programs
+    collegePrograms: PROGRAMS_DATA.collegePrograms,
+    shsStrands: PROGRAMS_DATA.shsStrands,
+    totalPrograms: PROGRAMS_DATA.totalPrograms,
+    // School info
+    years: new Date().getFullYear() - 1961,
+    founded: SCHOOL_INFO.founded,
+    location: SCHOOL_INFO.location,
+    type: SCHOOL_INFO.type,
   });
 
-  // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    fetchStats();
-    startAnimations();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const teachersSnapshot = await getDocs(collection(db, 'teachers'));
-      const teachersCount = teachersSnapshot.size;
-
-      const coursesSnapshot = await getDocs(collection(db, 'courses'));
-      const allCourses = [];
-      coursesSnapshot.forEach((doc) => {
-        allCourses.push({ id: doc.id, ...doc.data() });
-      });
-      
-      const collegeCourses = allCourses.filter(c => c.level === 'college');
-      const shsStrands = allCourses.filter(c => c.level === 'shs');
-
-      setStats({
-        teachers: teachersCount,
-        collegePrograms: collegeCourses.length,
-        shsStrands: shsStrands.length,
-        totalPrograms: collegeCourses.length + shsStrands.length,
-        years: 65,
-        founded: '1961',
-        location: 'Toledo City, Cebu',
-        type: 'Catholic Education',
-      });
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
+    // Simulate loading (para smooth yung animation)
+    const timer = setTimeout(() => {
       setLoading(false);
-    }
-  };
+    }, 500);
+
+    startAnimations();
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const startAnimations = () => {
     Animated.timing(fadeAnim, {
@@ -91,19 +98,26 @@ export default function StatisticsScreen() {
         useNativeDriver: true,
       }).start();
 
-      countAnim.addListener(({ value: val }) => {
+      const listener = countAnim.addListener(({ value: val }) => {
         setDisplayValue(Math.floor(val));
       });
 
-      return () => countAnim.removeAllListeners();
-    }, []);
+      return () => countAnim.removeListener(listener);
+    }, [value]);
 
     return (
-      <Animated.View style={[styles.statCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View 
+        style={[
+          styles.statCard, 
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+        ]}
+      >
         <View style={[styles.statIconContainer, { backgroundColor: bgColor }]}>
           <Ionicons name={icon} size={28} color={color} />
         </View>
-        <Text style={[styles.statNumber, { color }]}>{displayValue.toLocaleString()}</Text>
+        <Text style={[styles.statNumber, { color }]}>
+          {displayValue.toLocaleString()}
+        </Text>
         <Text style={styles.statLabel}>{label}</Text>
       </Animated.View>
     );
@@ -116,6 +130,17 @@ export default function StatisticsScreen() {
         <Ionicons name={icon} size={18} color={color} />
       </View>
       <Text style={styles.factText}>{text}</Text>
+    </View>
+  );
+
+  // ✅ DEPARTMENT ROW
+  const DeptRow = ({ icon, label, value, color }) => (
+    <View style={styles.deptRow}>
+      <View style={styles.deptLeft}>
+        <Ionicons name={icon} size={18} color={color} />
+        <Text style={styles.deptLabel}>{label}</Text>
+      </View>
+      <Text style={[styles.deptValue, { color }]}>{value}</Text>
     </View>
   );
 
@@ -139,13 +164,16 @@ export default function StatisticsScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+      >
         {/* Stats Grid - 2x2 */}
         <View style={styles.statsGrid}>
           <StatCard 
             icon="people" 
-            value={stats.teachers} 
-            label="Total Teachers" 
+            value={stats.totalPersonnel} 
+            label="Total Personnel" 
             color="#0D3E86"
             bgColor="#E8EDF4"
             delay={0}
@@ -176,8 +204,63 @@ export default function StatisticsScreen() {
           />
         </View>
 
+        {/* ✅ Faculty Breakdown */}
+        <Animated.View 
+          style={[
+            styles.section, 
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+          ]}
+        >
+          <Text style={styles.sectionTitle}>👥 Faculty Breakdown</Text>
+          
+          <DeptRow 
+            icon="school-outline" 
+            label="Elementary Department" 
+            value={stats.elementaryTeachers} 
+            color="#FF6B35"
+          />
+          <DeptRow 
+            icon="school-outline" 
+            label="Junior High School" 
+            value={stats.jhsTeachers} 
+            color="#1A5CB5"
+          />
+          <DeptRow 
+            icon="school-outline" 
+            label="Senior High School" 
+            value={stats.shsTeachers} 
+            color="#8B5CF6"
+          />
+          <DeptRow 
+            icon="school-outline" 
+            label="College Professors" 
+            value={stats.collegeProfessors} 
+            color="#0D3E86"
+          />
+          
+          <View style={styles.divider} />
+          
+          <DeptRow 
+            icon="briefcase-outline" 
+            label="Non-Teaching Staff" 
+            value={stats.nonTeachingStaff} 
+            color="#32CD32"
+          />
+          <DeptRow 
+            icon="construct-outline" 
+            label="Maintenance Personnel" 
+            value={stats.maintenancePersonnel} 
+            color="#FFA500"
+          />
+        </Animated.View>
+
         {/* School Information */}
-        <Animated.View style={[styles.section, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View 
+          style={[
+            styles.section, 
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+          ]}
+        >
           <Text style={styles.sectionTitle}>🏫 About Consolatrix College</Text>
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
@@ -212,7 +295,12 @@ export default function StatisticsScreen() {
         </Animated.View>
 
         {/* Quick Facts */}
-        <Animated.View style={[styles.section, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View 
+          style={[
+            styles.section, 
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+          ]}
+        >
           <Text style={styles.sectionTitle}>⚡ Quick Facts</Text>
           <View style={styles.factsGrid}>
             <QuickFact 
@@ -243,14 +331,23 @@ export default function StatisticsScreen() {
         </Animated.View>
 
         {/* Description */}
-        <Animated.View style={[styles.aboutSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View 
+          style={[
+            styles.aboutSection, 
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+          ]}
+        >
           <Text style={styles.sectionTitle}>📖 About CCTC</Text>
           <Text style={styles.aboutText}>
-            <Text style={styles.aboutHighlight}>Consolatrix College of Toledo City</Text> was founded in 
+            <Text style={styles.aboutHighlight}>
+              Consolatrix College of Toledo City
+            </Text> 
+            {' '}was founded in
             <Text style={styles.aboutHighlight}> 1961 </Text> 
             by the Augustinian Recollect Sisters. It has been providing 
             <Text style={styles.aboutHighlight}> quality Catholic education </Text> 
-            for over 65 years, offering programs from Junior High to College level.
+            for over {stats.years} years, offering programs from 
+            Junior High to College level.
           </Text>
         </Animated.View>
       </ScrollView>

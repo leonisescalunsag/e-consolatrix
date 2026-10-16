@@ -108,6 +108,39 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   
+  // ✅ NEW: Department rows
+  deptRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  deptLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  deptLabel: {
+    fontSize: 14,
+    color: '#1A1A2E',
+    fontFamily: 'Montserrat-Medium',
+    marginLeft: 12,
+  },
+  deptValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginVertical: 12,
+  },
+  
   // School Info Grid
   infoGrid: {
     flexDirection: 'row',
@@ -195,7 +228,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Montserrat-Bold',
   },
-  
   
   loadingContainer: {
     flex: 1,
