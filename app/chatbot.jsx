@@ -9,14 +9,25 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../styles/ChatbotStyles';
 
-// ✅ COMPLETE AI RESPONSES
+// ✅ COMPLETE AI RESPONSES (UPDATED with Faculty, Campus Tour & Enrollment)
 const AI_RESPONSES = {
-  // Teachers
-  'how many teachers': 'We currently have 24 dedicated faculty members at Consolatrix College of Toledo City, Inc. Our teachers are the following departments: College (BSIT, BSHM, BSED, BS Entrep), Senior High School, Junior High School, and Elementary. Each educator is committed to providing quality Catholic education and holistic formation to our students.',
-  'teachers': 'Consolatrix College has a diverse and dedicated faculty composed of 24 teachers. You can view the complete Teacher Directory in the app. Our teachers include Program Heads, College Instructors, SHS Instructors, JHS Instructors, and Grade School Teachers across different departments.',
-  'college teachers': 'Our College department has instructors from BSIT, BSHM, Education, and BS Entrep programs. Key faculty include Mr. Procoro Gonzaga (BSIT Program Head), Mr. Russel D. Tadena (BSHM Program Head), and Mrs. Josephine M. Tabal (BSED Program Head).',
-  'program head': 'Our Program Heads include:\n• Mr. Procoro Gonzaga - BSIT\n• Mr. Russel D. Tadena - BSHM\n• Mrs. Josephine M. Tabal - BSED\n• Ms. Maria Clara - BS Entrep',
+  // Teachers & Faculty (Exact counts)
+  'how many teachers': 'Consolatrix College currently has a total of 65 teaching personnel across all departments: 7 in Elementary, 15 in Junior High School, 22 in Senior High School, and 21 College Professors. Additionally, we have 17 Non-Teaching Staff and 5 Maintenance Personnel, bringing our total school personnel to 87. You can view their complete profiles with pictures in the "Faculty" tab of the app.',
+  
+  'total personnel': 'We have a total of 87 dedicated personnel at Consolatrix College. This includes 65 teachers (Elementary, JHS, SHS, and College), 17 non-teaching staff, and 5 maintenance personnel.',
 
+  'teachers': 'You can find all our dedicated teachers and staff in the Faculty section of the app. We have complete directories for College (BSIT, BSHM, Education, BS Entrep), SHS, JHS, Elementary, and Non-Teaching Staff.',
+  
+  'faculty': 'Our Faculty & Staff directory features complete profiles with pictures of our Program Heads, College Instructors, SHS/JHS/Elem Teachers, and administrative staff. Check out the Faculty tab to see them!',
+  
+  'program head': 'Our Program Heads include:\n• Mr. Procorro Gonzaga - BSIT\n• Mr. Russel Tadeña - BSHM (HRM)\n• Dr. Josephine Tabal - BSED (Education)\n• Dr. Maristela Remitar - BS Entrep\nYou can see their pictures in the Faculty section!',
+  
+  // Campus Tour
+  'campus tour': 'The Campus Tour feature is one of our newest additions! It offers a POV (Point of View) walking tour video of major facilities like the AVR, Computer Labs, Library, Chapel, and more. You can watch the videos in the "Campus Tour" section of the app.',
+  'tour': 'Our virtual Campus Tour allows you to explore the school facilities through immersive POV videos. Check the Campus Tour section to see the AVR, HM Building, Covered Court, and other major areas!',
+  'video': 'You can watch POV walking tour videos of our facilities in the Campus Tour section. It shows you the way to the rooms and highlights inside!',
+  'facilities': 'Our major facilities include the Audio-Visual Room (AVR), Computer Laboratories, School Library, Chapel, HRM Building, Covered Court, and many more. You can watch their videos in the Campus Tour tab!',
+  
   // Courses
   'courses': 'We offer Senior High strands (STEM, ABM, HUMSS, GAS, TVL) and College programs (BSIT, BSHM, BSED, BPED, BSEntrep).',
   'strands': 'Our SHS strands include:\n• STEM - Science, Technology, Engineering, and Mathematics\n• ABM - Accountancy, Business, and Management\n• HUMSS - Humanities and Social Sciences\n• GAS - General Academic Strand\n• TVL - Technical-Vocational-Livelihood',
@@ -24,49 +35,38 @@ const AI_RESPONSES = {
   'bsit': 'BSIT - Bachelor of Science in Information Technology. Prepares students for IT careers including software development, networking, database management, and system administration.',
   'bshm': 'BSHM - Bachelor of Science in Hospitality Management. Focuses on hotel and restaurant management, tourism, and hospitality industry operations.',
   'bsed': 'BSED - Bachelor of Secondary Education. Prepares future teachers in various fields including English, Mathematics, Science, and Social Studies.',
-  'bped': 'BPED - Bachelor of Physical Education. Focuses on sports education, physical fitness, coaching, and athletic program management.',
-  'bsentrepreneurship': 'BSEntrep - Bachelor of Science in Entrepreneurship. Prepares students for business ventures, startup management, and entrepreneurial leadership.',
-  'stem': 'STEM - Science, Technology, Engineering, and Mathematics strand for SHS students. Prepares students for college programs in engineering, medicine, and applied sciences.',
-  'abm': 'ABM - Accountancy, Business, and Management strand for future business leaders, accountants, and entrepreneurs.',
-  'humss': 'HUMSS - Humanities and Social Sciences strand for future educators, social workers, lawyers, and communication professionals.',
-  'gas': 'GAS - General Academic Strand for undecided students who want to explore different fields before choosing a college program.',
-  'tvl': 'TVL - Technical-Vocational-Livelihood strand for skilled trades and technical careers.',
 
-  // History - Complete
-  'school history': 'Consolatrix College of Toledo City, Inc. (CCTC) was established in 1961 by the Augustinian Recollect Sisters (A.R.). It was founded following a heartfelt invitation from the local clergy to provide a religious and moral foundation for the youth of Toledo City. Starting with a pioneering class of only 129 students, the institution has grown into a comprehensive educational center.\n\nOver its 65+ years of existence, CCTC has evolved from a simple school to a full-fledged educational institution offering K-12 and tertiary programs. The school remains committed to its Augustinian Recollect heritage of providing quality Catholic education and transforming students into Christ-centered individuals. Today, CCTC continues to serve the community with its mission of strengthening fraternal charity, facilitating integral development, and nurturing stewardship.',
-  'history': 'Consolatrix College of Toledo City, Inc. (CCTC) was established in 1961 by the Augustinian Recollect Sisters (A.R.). It was founded following a heartfelt invitation from the local clergy to provide a religious and moral foundation for the youth of Toledo City. Starting with a pioneering class of only 129 students, the institution has grown into a comprehensive educational center.\n\nOver its 65+ years of existence, CCTC has evolved from a simple school to a full-fledged educational institution offering K-12 and tertiary programs. The school remains committed to its Augustinian Recollect heritage of providing quality Catholic education and transforming students into Christ-centered individuals. Today, CCTC continues to serve the community with its mission of strengthening fraternal charity, facilitating integral development, and nurturing stewardship.',
+  // History & Mission/Vision
+  'school history': 'Consolatrix College of Toledo City, Inc. (CCTC) was established in 1961 by the Augustinian Recollect Sisters (A.R.). It was founded following a heartfelt invitation from the local clergy to provide a religious and moral foundation for the youth of Toledo City. Starting with a pioneering class of only 129 students, the institution has grown into a comprehensive educational center.\n\nOver its 65+ years of existence, CCTC has evolved from a simple school to a full-fledged educational institution offering K-12 and tertiary programs. You can read the full detailed history in the "School" tab.',
+  'history': 'Consolatrix College of Toledo City, Inc. (CCTC) was established in 1961 by the Augustinian Recollect Sisters (A.R.). Starting from a pioneering class of 129 students, it has grown into a comprehensive educational center. You can read the full timeline in the School section.',
   'founder': 'Consolatrix College was founded by the Augustinian Recollect Sisters (A.R.) in 1961. The religious congregation established the school following an invitation from the local clergy to provide Catholic education and moral foundation to the youth of Toledo City.',
-  'founded': 'Consolatrix College was founded in 1961 by the Augustinian Recollect Sisters (A.R.). The school started with only 129 pioneering students and has since grown into a comprehensive educational institution.',
-  '1961': 'Consolatrix College was established in 1961 by the Augustinian Recollect Sisters (A.R.) with only 129 pioneering students. This marked the beginning of what would become a 65+ year legacy of Catholic education in Toledo City.',
   'mission': 'Our mission is to strengthen fraternal charity through God-filled friendship and renewed evangelization; facilitate the integral development of learners towards transformation through current researches, relevant curricular offerings, and responsive community extension services; fortify leadership and professional development of stakeholders through continuing education and intensive Augustinian Recollect spirituality; develop a community of Christ-centered Augustinian Recollect Stewards who are environmentally caring and global leaders; and nurture one another in the shared mission for the sustainability of the AR, school, and social relevance of programs and services.',
   'vision': 'Consolatrix College of Toledo City, Inc. envisions a life-giving and innovating education ministry committed to transforming community of learners into Christ-centered Augustinian Recollect Stewards.',
-  'heritage': 'CCTC has a rich heritage of 65+ years of academic excellence and community service. Founded in 1961 by the Augustinian Recollect Sisters, the school has been a pillar of Catholic education in Toledo City, Cebu, shaping thousands of students into Christ-centered individuals.',
-  'cctc': 'Consolatrix College of Toledo City (CCTC) is a Catholic educational institution founded in 1961 by the Augustinian Recollect Sisters. It offers K-12 and tertiary programs, with a mission to transform learners into Christ-centered Augustinian Recollect Stewards.',
 
-  // Rules
-  'rules': 'Our policies cover Attendance, Dress Code, Academic Integrity, and Behavioral Standards. Each category has specific guidelines to ensure a safe and productive learning environment.',
+  // Rules & Enrollment (UPDATED WITH VARIATIONS)
+  'rules': 'Our policies cover Attendance, Dress Code, Academic Integrity, and Behavioral Standards. Each category has specific guidelines to ensure a safe and productive learning environment. You can read them all in the Rules tab.',
   'attendance': 'Students must maintain 95% attendance. Late arrivals must report to the office. Absences require a parent note and must be properly documented.',
   'dress code': 'Complete uniform is required daily. School ID must be visible at all times. Follow proper grooming standards as outlined in the student handbook.',
-  'academic integrity': 'No plagiarism or cheating. All submitted work must be original. Proper citations are mandatory for all academic papers and projects.',
-  'behavioral standards': 'Respect all staff and students. No bullying or harassment is tolerated. Follow classroom guidelines and maintain proper conduct at all times.',
-  'policy': 'All school policies are available in the Rules section of the app. These include Attendance, Dress Code, Academic Integrity, and Behavioral Standards.',
+  
+  // ✅ Tinamaan na natin lahat ng pwedeng itanong about enrollment
+   'enrollment': 'Enrollment for the current semester is already closed. The next enrollment period will be announced soon for the upcoming school year. Please stay updated through the News & Announcements section of the app!',
+  
+  'enroll': 'Enrollment for the current semester is already closed. The next enrollment period will be announced soon for the upcoming school year. Please stay updated through the News & Announcements section of the app!',
+   'enrolling': 'Enrollment for the current semester is already closed. The next enrollment period will be announced soon for the upcoming school year. Please stay updated through the News & Announcements section of the app!',
+  
+  'registrar': 'The registrar\'s office is located at the main building, First Floor. Visit them for enrollment, records, and other academic concerns from Monday to Friday, 8:00 AM to 4:00 PM.',
+  'requirements': 'For incoming students, the basic enrollment requirements are:\n• Form 138 (Report Card) or Transcript of Records\n• Good Moral Certificate\n• PSA Birth Certificate\n• 2x2 ID Pictures (4 pcs)\n\nFor transferees, additional documents like Honorable Dismissal may be required. Please visit the Registrar\'s Office for the complete list.',
 
-  // Enrollment
-  'enrollment': 'Enrollment for SY 2026-2027 is now open! Please visit the registrar\'s office for requirements and the enrollment process. Early enrollment is encouraged to secure your slot.',
-  'scholarship': 'Please contact the registrar\'s office for scholarship inquiries and available programs. Various scholarships are available for qualified students.',
-  'registrar': 'The registrar\'s office is located at the main building, 2nd floor. Visit them for enrollment, records, and other academic concerns.',
-  'requirements': 'Enrollment requirements include: Form 138, Good Moral Certificate, Birth Certificate, and 2x2 ID photos. Additional requirements may be requested depending on the program.',
-
-  // General
-  'hello': 'Hello! 👋 Welcome to e-Consolatrix. I\'m your AI assistant. How can I help you today? You can ask me about Teachers, Courses, History, Rules, or Enrollment.',
+  // General / Greetings
+  'hello': 'Hello! 👋 Welcome to e-Consolatrix. I\'m your AI assistant. How can I help you today? You can ask me about our Faculty, Courses, School History, Rules, or the new Campus Tour!',
   'hi': 'Hi there! 👋 I\'m your virtual assistant for Consolatrix College. I\'m here to help you learn more about our school. What would you like to know?',
-  'help': 'I can help you with:\n• Teachers - faculty information\n• Courses - available programs\n• History - school heritage\n• Rules - policies\n• Enrollment - admission process\n\nJust ask and I\'ll do my best to answer! 😊',
-  'about': 'I\'m your AI assistant for Consolatrix College of Toledo City. I\'m here to help you learn more about our school, from our rich history to our current programs and policies.',
+  'help': 'I can help you with:\n• Faculty & Staff - teacher profiles\n• Campus Tour - POV facility videos\n• Courses - available programs\n• History - school heritage\n• Rules - policies\n\nJust ask and I\'ll do my best to answer! 😊',
+  'about': 'I\'m your AI assistant for Consolatrix College of Toledo City. I\'m here to help you learn more about our school, from our rich history to our current programs, policies, and virtual campus tour.',
   'thank you': 'You\'re welcome! 😊 Feel free to ask more questions about CCTC. I\'m here to help!',
   'thanks': 'You\'re welcome! 😊 Anytime!',
   'good': 'I\'m glad to hear that! 😊 Anything else you\'d like to know about CCTC?',
   'great': 'Awesome! 😊 Let me know if you need anything else.',
-  'default': 'I\'m not sure about that. 🤔 Here are some things you can ask me about:\n• Teachers\n• Courses\n• History\n• Rules\n• Enrollment'
+  'default': 'I\'m not sure about that. 🤔 Here are some things you can ask me about:\n• Faculty & Staff\n• Campus Tour\n• Courses\n• History\n• Rules\n• Enrollment'
 };
 
 const getAIResponse = (input) => {
@@ -198,7 +198,7 @@ const ChatbotScreen = () => {
   const [messages, setMessages] = useState([
     { 
       id: '1', 
-      text: '👋 Hello! I\'m your AI assistant. Ask me about:\n• Teachers\n• Courses\n• History\n• Rules\n• Enrollment', 
+      text: '👋 Hello! I\'m your AI assistant. Ask me about:\n• Faculty & Staff\n• Campus Tour\n• Courses\n• History\n• Rules\n• Enrollment', 
       isUser: false 
     }
   ]);
@@ -274,12 +274,13 @@ const ChatbotScreen = () => {
     }, 600);
   };
 
+  // ✅ BAGONG MGA TANONG PARA SA CHIPS
   const suggestedQuestions = [
     'How many teachers are there?',
+    'What facilities can I tour?',
     'What courses are offered?',
     'Tell me about the school history',
-    'What are the school rules?',
-    'When is the enrollment period?'
+    'How to enroll?'
   ];
 
   return (

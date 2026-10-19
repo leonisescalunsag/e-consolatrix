@@ -53,7 +53,6 @@ export const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     letterSpacing: 0.5,
   },
-  // ✅ CATEGORY FILTERS
   categoryWrapper: {
     backgroundColor: '#fff',
     paddingVertical: 8,
@@ -98,7 +97,6 @@ export const styles = StyleSheet.create({
   categoryTextActive: {
     color: '#fff',
   },
-  // ✅ UPDATED SUBTITLE
   subtitleWrapper: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -125,6 +123,8 @@ export const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'space-between',
   },
+  
+  // ✅ CARD STYLES (Video Preview)
   roomCard: {
     width: (width - 48) / 2,
     height: 150,
@@ -136,10 +136,27 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
+    position: 'relative', 
+    backgroundColor: '#000', // Fallback color habang naglo-load yung video
   },
   roomImage: {
     width: '100%',
     height: '100%',
+  },
+  cardDarkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  playIconContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(0,0,0,0.6)', 
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   roomOverlay: {
     position: 'absolute',
@@ -180,16 +197,17 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Montserrat-Medium',
   },
-  // ✅ MODAL
+  
+  // ✅ MODAL FULLSCREEN VIDEO STYLES
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: width * 0.95,
-    maxHeight: '95%',
+    maxHeight: '90%',
     backgroundColor: '#fff',
     borderRadius: 24,
     overflow: 'hidden',
@@ -199,21 +217,27 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
   },
+  videoWrapper: {
+    width: '100%',
+    height: 250,
+    backgroundColor: '#000',
+    position: 'relative',
+  },
+  videoPlayer: {
+    width: '100%',
+    height: '100%',
+  },
   modalClose: {
     position: 'absolute',
     top: 16,
     right: 16,
     zIndex: 10,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     width: 36,
     height: 36,
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalImage: {
-    width: '100%',
-    height: 280,
   },
   modalDetails: {
     padding: 20,
@@ -239,37 +263,26 @@ export const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     flex: 1,
   },
-  modalBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  modalBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    fontFamily: 'Montserrat-Medium',
-  },
   modalDescription: {
     fontSize: 14,
     color: '#444',
     lineHeight: 22,
     fontFamily: 'Montserrat-Regular',
   },
-  // ✅ PANORAMA INDICATOR
   panoramaIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
-    padding: 10,
-    backgroundColor: '#F0F4F8',
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#E8EDF4', 
     borderRadius: 12,
     gap: 8,
   },
   panoramaIndicatorText: {
     fontSize: 13,
     color: '#0D3E86',
-    fontWeight: '600',
-    fontFamily: 'Montserrat-Medium',
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
   },
 });

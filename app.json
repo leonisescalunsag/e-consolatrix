@@ -16,7 +16,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/bg2.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.leonises.econsolatrix"
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/",  
+          "image": "./assets/images/",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -38,6 +39,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "752953bb-ab9c-4dae-8b8c-999b4b741c75"
+      }
     }
   }
 }

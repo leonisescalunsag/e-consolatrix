@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker'; // ✅ Image Picker
 import LoadingSpinner from '../components/LoadingSpinner';
 import { db } from '../../../config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -12,18 +13,22 @@ export default function EditTeacher() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [image, setImage] = useState(null); // ✅ State para sa image
+  
   const [form, setForm] = useState({
     name: '',
     position: '',
-    department: 'college',
+    department: 'College',
     course: ''
   });
 
   const departments = [
-    { name: 'college', label: 'College' },
-    { name: 'shs', label: 'Senior High School' },
-    { name: 'jhs', label: 'Junior High School' },
-    { name: 'elementary', label: 'Elementary' }
+    { name: 'College', label: 'College' },
+    { name: 'SHS', label: 'Senior High School' },
+    { name: 'JHS', label: 'Junior High School' },
+    { name: 'Elementary', label: 'Elementary' },
+    { name: 'Staff', label: 'Staff' },
+    { name: 'Maintenance', label: 'Maintenance' }
   ];
 
   useEffect(() => {
@@ -36,7 +41,11 @@ export default function EditTeacher() {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        setForm(docSnap.data());
+        const data = docSnap.data();
+        setForm(data);
+        if (data.imageUrl) {
+          setImage(data.imageUrl); // ✅ I-load yung existing image kung meron
+        }
       } else {
         Alert.alert('Error', 'Teacher not found');
         router.back();
@@ -45,6 +54,21 @@ export default function EditTeacher() {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Function para pumili ng bagong image
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
     }
   };
 
@@ -59,9 +83,10 @@ export default function EditTeacher() {
       const docRef = doc(db, 'teachers', id);
       await updateDoc(docRef, {
         ...form,
+        imageUrl: image, // ✅ I-save yung bagong image
         updatedAt: new Date()
       });
-      Alert.alert('Success', 'Teacher updated successfully');
+      Alert.alert('Success', 'Faculty/Staff updated successfully');
       router.back();
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -70,29 +95,43 @@ export default function EditTeacher() {
     }
   };
 
-  if (loading) return <LoadingSpinner message="Loading teacher..." />;
+  if (loading) return <LoadingSpinner message="Loading..." />;
 
   return (
     <View style={styles.container}>
-      {/* ✅ IMPROVED HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Ionicons name="create" size={20} color="#fff" />
-          <Text style={styles.headerTitle}>Edit Teacher</Text>
+          <Text style={styles.headerTitle}>Edit Faculty/Staff</Text>
         </View>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.formCard}>
+          
+          {/* ✅ IMAGE UPLOADER */}
+          <View style={styles.imageUploadContainer}>
+            <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+              {image ? (
+                <Image source={{ uri: image }} style={styles.profileImage} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="camera" size={32} color="#0D3E86" />
+                  <Text style={styles.imageText}>Upload Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.changePhotoText}>Tap to change photo</Text>
+          </View>
+
           <Text style={styles.formLabel}>Full Name *</Text>
           <TextInput
             style={styles.input}
             placeholder="e.g., Mr. John Doe"
-            placeholderTextColor="#999"
             value={form.name}
             onChangeText={(text) => setForm({...form, name: text})}
           />
@@ -101,7 +140,6 @@ export default function EditTeacher() {
           <TextInput
             style={styles.input}
             placeholder="e.g., College Instructor, Program Head"
-            placeholderTextColor="#999"
             value={form.position}
             onChangeText={(text) => setForm({...form, position: text})}
           />
@@ -112,7 +150,6 @@ export default function EditTeacher() {
               selectedValue={form.department}
               onValueChange={(value) => setForm({...form, department: value, course: ''})}
               style={styles.picker}
-              dropdownIconColor="#0D3E86"
             >
               <Picker.Item label="Select Department" value="" color="#999" />
               {departments.map((dept, index) => (
@@ -125,28 +162,16 @@ export default function EditTeacher() {
           <TextInput
             style={styles.input}
             placeholder="e.g., BSIT DEPARTMENT"
-            placeholderTextColor="#999"
             value={form.course}
             onChangeText={(text) => setForm({...form, course: text})}
           />
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity 
-              style={[styles.button, styles.cancelButton]}
-              onPress={() => router.back()}
-              activeOpacity={0.8}
-            >
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleUpdate}
-              disabled={saving}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.saveButtonText}>
-                {saving ? 'Saving...' : 'Update Teacher'}
-              </Text>
+            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate} disabled={saving}>
+              <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Update'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -156,118 +181,30 @@ export default function EditTeacher() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-    backgroundColor: '#0D3E86',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-  },
-  headerCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerTitle: {
-    fontSize: 19,
-    fontWeight: 'bold',
-    color: '#fff',
-    fontFamily: 'Montserrat-Bold',
-  },
-  backBtn: {
-    padding: 4,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  formCard: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 18,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-  },
-  formLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
-    fontFamily: 'Montserrat-Medium',
-  },
-  input: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 14,
-    fontFamily: 'Montserrat-Regular',
-  },
-  pickerWrapper: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 10,
-    marginBottom: 14,
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 48,
-    color: '#333',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 6,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cancelButton: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 15,
-    fontWeight: '600',
-    fontFamily: 'Montserrat-Medium',
-  },
-  saveButton: {
-    backgroundColor: '#0D3E86',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    fontFamily: 'Montserrat-Bold',
-  },
+  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 50, paddingBottom: 14, backgroundColor: '#0D3E86', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, elevation: 4 },
+  headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerTitle: { fontSize: 19, fontWeight: 'bold', color: '#fff', fontFamily: 'Montserrat-Bold' },
+  backBtn: { padding: 4 },
+  scrollContent: { padding: 16, paddingBottom: 30 },
+  formCard: { backgroundColor: '#fff', borderRadius: 18, padding: 18, elevation: 4 },
+  
+  // ✅ Styles para sa Image
+  imageUploadContainer: { alignItems: 'center', marginBottom: 20 },
+  imagePicker: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#F0F4F8', borderWidth: 2, borderColor: '#0D3E86', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  profileImage: { width: '100%', height: '100%' },
+  imagePlaceholder: { alignItems: 'center' },
+  imageText: { fontSize: 10, color: '#0D3E86', marginTop: 4, fontFamily: 'Montserrat-Bold' },
+  changePhotoText: { fontSize: 12, color: '#666', marginTop: 8, fontFamily: 'Montserrat-Medium' },
+
+  formLabel: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 5, fontFamily: 'Montserrat-Medium' },
+  input: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10, padding: 12, fontSize: 14, color: '#333', marginBottom: 14, fontFamily: 'Montserrat-Regular' },
+  pickerWrapper: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10, marginBottom: 14, overflow: 'hidden' },
+  picker: { height: 48, color: '#333' },
+  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 6 },
+  button: { flex: 1, paddingVertical: 14, borderRadius: 10, alignItems: 'center' },
+  cancelButton: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E0E0E0' },
+  cancelButtonText: { color: '#666', fontSize: 15, fontWeight: '600' },
+  saveButton: { backgroundColor: '#0D3E86' },
+  saveButtonText: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
 });
