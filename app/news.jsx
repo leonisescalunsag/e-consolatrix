@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Import AsyncStorage
 import { styles } from '../styles/NewsStyles';
 import { useFadeIn, useSlideUp, usePressAnimation } from '../hooks/useSlideAnimation';
 import { db } from '../config/firebase';
@@ -31,7 +32,6 @@ const NewsCard = ({ item, index, onPress }) => {
         onPressOut={pressOut}
         activeOpacity={0.9}
       >
-        {/* Category Badge */}
         <View style={styles.cardHeader}>
           <View style={[styles.categoryBadge, { backgroundColor: item.color + '20' }]}>
             <Text style={[styles.categoryText, { color: item.color }]}>{item.category}</Text>
@@ -39,15 +39,12 @@ const NewsCard = ({ item, index, onPress }) => {
           <Text style={styles.newsDate}>{item.date || 'No date'}</Text>
         </View>
         
-        {/* Title */}
         <Text style={styles.newsTitle}>{item.title}</Text>
         
-        {/* Description Preview - 2 lines only */}
         <Text style={styles.newsPreview} numberOfLines={2}>
           {item.description}
         </Text>
         
-        {/* Read More Indicator */}
         <View style={styles.readMoreContainer}>
           <Text style={styles.readMoreText}>Read More</Text>
           <Ionicons name="arrow-forward-circle" size={18} color="#0D3E86" />
@@ -65,67 +62,36 @@ const NewsDetailModal = ({ visible, news, onClose }) => {
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 60,
-          friction: 10,
-          useNativeDriver: true,
-        }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.spring(scaleAnim, { toValue: 1, tension: 60, friction: 10, useNativeDriver: true }),
       ]).start();
     } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
+      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
     }
   }, [visible]);
 
   if (!news) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="none" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View style={[
-          styles.modalContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}>
-          {/* Close Button */}
+        <Animated.View style={[styles.modalContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
           <TouchableOpacity style={styles.modalCloseBtn} onPress={onClose}>
             <Ionicons name="close-circle" size={32} color="#0D3E86" />
           </TouchableOpacity>
 
-          {/* Category Badge */}
           <View style={[styles.modalCategoryBadge, { backgroundColor: news.color + '20' }]}>
-            <Text style={[styles.modalCategoryText, { color: news.color }]}>
-              {news.category}
-            </Text>
+            <Text style={[styles.modalCategoryText, { color: news.color }]}>{news.category}</Text>
           </View>
 
-          {/* Title */}
           <Text style={styles.modalTitle}>{news.title}</Text>
 
-          {/* Date */}
           <View style={styles.modalDateRow}>
             <Ionicons name="calendar-outline" size={16} color="#64748B" />
             <Text style={styles.modalDate}>{news.date || 'No date'}</Text>
           </View>
 
-          {/* Full Description */}
           <ScrollView showsVerticalScrollIndicator={false} style={styles.modalDescriptionContainer}>
             <Text style={styles.modalDescription}>{news.description}</Text>
           </ScrollView>
@@ -184,11 +150,27 @@ export default function NewsScreen() {
 
   const tabs = ['All news', 'Announcements', 'Events', 'Achievements'];
 
-  // ✅ FETCH NEWS FROM FIREBASE (REAL-TIME)
+  // ✅ FETCH & CACHE LOGIC
   useEffect(() => {
+    // 1. I-load muna yung naka-save sa phone (Offline Cache)
+    const loadCachedNews = async () => {
+      try {
+        const cached = await AsyncStorage.getItem('cachedNews');
+        if (cached) {
+          setNews(JSON.parse(cached));
+          setLoading(false); // Matagal pa bago mag-fetch, kaya ipakita na agad yung cache
+        }
+      } catch (e) {
+        console.log('Cache error', e);
+      }
+    };
+    
+    loadCachedNews();
+
+    // 2. Mag-fetch sa Firebase (Realtime)
     const q = query(collection(db, 'news'), orderBy('createdAt', 'desc'));
     
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       const newsData = [];
       querySnapshot.forEach((doc) => {
         newsData.push({ 
@@ -197,10 +179,16 @@ export default function NewsScreen() {
           createdAt: doc.data().createdAt?.toDate?.() || new Date()
         });
       });
-      setNews(newsData);
+
+      if (newsData.length > 0) {
+        setNews(newsData);
+        // 3. I-save sa phone memory para may offline copy
+        await AsyncStorage.setItem('cachedNews', JSON.stringify(newsData));
+      }
       setLoading(false);
     }, (error) => {
       console.error('Error fetching news:', error);
+      // Pag may error (walang internet), at may naka-display na (galing cache), ok lang.
       setLoading(false);
     });
 
@@ -220,18 +208,15 @@ export default function NewsScreen() {
         item.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-  // ✅ HEADER ANIMATIONS
   const headerAnim = useFadeIn(600);
   const headerSlide = useSlideUp(-20);
   const tabAnim = useSlideUp(100);
 
-  // ✅ Open News Detail
   const openNewsDetail = (item) => {
     setSelectedNews(item);
     setModalVisible(true);
   };
 
-  // ✅ Close News Detail
   const closeNewsDetail = () => {
     setModalVisible(false);
     setTimeout(() => setSelectedNews(null), 300);
@@ -250,11 +235,7 @@ export default function NewsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <Animated.View style={{
-        opacity: headerAnim,
-        transform: [{ translateY: headerSlide }]
-      }}>
+      <Animated.View style={{ opacity: headerAnim, transform: [{ translateY: headerSlide }] }}>
         <View style={styles.header}>
           <View style={styles.headerTitleRow}>
             <Ionicons name="newspaper-outline" size={32} color="white" />
@@ -282,7 +263,6 @@ export default function NewsScreen() {
         </View>
       </Animated.View>
 
-      {/* CATEGORY TABS */}
       <View style={{ backgroundColor: 'white' }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabScroll}>
           {tabs.map((tab) => (
@@ -296,11 +276,7 @@ export default function NewsScreen() {
         </ScrollView>
       </View>
 
-      {/* NEWS LIST */}
-      <ScrollView 
-        contentContainerStyle={styles.newsList} 
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.newsList} showsVerticalScrollIndicator={false}>
         {filteredNews.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="newspaper-outline" size={60} color="#ccc" />
@@ -321,14 +297,12 @@ export default function NewsScreen() {
         )}
       </ScrollView>
 
-      {/* NEWS DETAIL MODAL */}
       <NewsDetailModal
         visible={modalVisible}
         news={selectedNews}
         onClose={closeNewsDetail}
       />
 
-      {/* BOTTOM TAB */}
       <Animated.View style={[styles.bottomTab, { transform: [{ translateY: tabAnim }] }]}>
         <TabIcon icon="home-outline" label="Home" onPress={() => router.push('/home')} />
         <TabIcon icon="time-outline" label="School" onPress={() => router.push('/history')} />

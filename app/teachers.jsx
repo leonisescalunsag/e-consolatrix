@@ -6,23 +6,33 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from '../config/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { styles } from '../styles/TeacherStyles';
 import { useFadeIn, useSlideUp, usePressAnimation } from '../hooks/useSlideAnimation';
 
 const { width, height } = Dimensions.get('window');
 
-// ✅ TEACHERS DATA (EXACT filenames base sa folder mo)
-const TEACHERS_DATA = {
-  bsit: {
-    name: 'BSIT Department',
-    icon: 'desktop-outline',
-    color: '#0D3E86',
-    sectionLabel: '👥 TEACHERS',
-    programHead: {
-      name: 'Mr. Procorro Gonzaga',
-      position: 'CCS Program Head',
-      image: require('../assets/images/TEACHERS/IT DEPT/Procorro Gonzaga.jpg'),
+// ✅ DEFAULT HARDCODED DATA (Base list)
+const DEFAULT_TEACHERS = {
+  arSisters: {
+    name: 'AR Sisters', icon: 'star-outline', color: '#D4AF37', sectionLabel: '👥 ADMINISTRATION',
+    programHead: { 
+      name: 'Sr. Josephine D. Ativo, A.R. Ph.D.EM', 
+      position: 'School President', 
+      image: require('../assets/images/TEACHERS/AR SISTERS/SR. JOSEPHINE ATIVO.jpg') 
     },
+    teachers: [
+      { name: 'Sr. Luzviminda C. Escal, A.R.', position: 'School Assistant Principal', image: require('../assets/images/TEACHERS/AR SISTERS/SR. LUZVIMINDA C. ESCAL.jpg') },
+      { name: 'Sr. Yvette T. Galabo, A.R.', position: 'School Treasurer', image: require('../assets/images/TEACHERS/AR SISTERS/SR. YVETTE T. GALABO.jpg') },
+      { name: 'Sr. Adelina M. Reyes, A.R.', position: 'School Registrar', image: require('../assets/images/TEACHERS/AR SISTERS/SR. ADELINA M. REYES.jpg') },
+      { name: 'Sr. Ginger L. Acosta, A.R.', position: 'Administrator', image: require('../assets/images/TEACHERS/AR SISTERS/SR. GINGER L. ACOSTA.jpg') },
+    ],
+  },
+  bsit: {
+    name: 'BSIT Department', icon: 'desktop-outline', color: '#0D3E86', sectionLabel: '👥 TEACHERS',
+    programHead: { name: 'Mr. Procorro Gonzaga', position: 'CCS Program Head', image: require('../assets/images/TEACHERS/IT DEPT/Procorro Gonzaga.jpg') },
     teachers: [
       { name: 'Mr. Daniel Bert Uy', position: 'Full time - IT Dept.', image: require('../assets/images/TEACHERS/IT DEPT/Daniel Bert Uy.jpg') },
       { name: 'Mr. Kenneth Jimenez', position: 'Full time - IT Dept.', image: require('../assets/images/TEACHERS/IT DEPT/Kenneth Jimenez.jpg') },
@@ -34,15 +44,8 @@ const TEACHERS_DATA = {
     ],
   },
   educDept: {
-    name: 'Education Department',
-    icon: 'school-outline',
-    color: '#FF6B35',
-    sectionLabel: '👥 TEACHERS',
-    programHead: {
-      name: 'Dr. Josephine Tabal',
-      position: 'Education Program Head',
-      image: require('../assets/images/TEACHERS/EDUC DEPT/Josephine Tabal.jpg'),
-    },
+    name: 'Education Department', icon: 'school-outline', color: '#FF6B35', sectionLabel: '👥 TEACHERS',
+    programHead: { name: 'Dr. Josephine Tabal', position: 'Education Program Head', image: require('../assets/images/TEACHERS/EDUC DEPT/Josephine Tabal.jpg') },
     teachers: [
       { name: 'Mrs. Mary Leizl Dela Cruz', position: 'Student Activity Coordinator', image: require('../assets/images/TEACHERS/EDUC DEPT/Mary Liezl Dela Cruz.jpg') },
       { name: 'Mrs. Eleanor Bacalso', position: 'Academic Coordinator', image: require('../assets/images/TEACHERS/EDUC DEPT/Eleanor Bacalso.jpg') },
@@ -52,15 +55,8 @@ const TEACHERS_DATA = {
     ],
   },
   hrm: {
-    name: 'HRM Department',
-    icon: 'restaurant-outline',
-    color: '#FF8C00',
-    sectionLabel: '👥 TEACHERS',
-    programHead: {
-      name: 'Mr. Russel Tadeña',
-      position: 'HRM Program Head',
-      image: require('../assets/images/TEACHERS/HRM DEPARTMENT/Russel Tadena.jpg'),
-    },
+    name: 'HRM Department', icon: 'restaurant-outline', color: '#FF8C00', sectionLabel: '👥 TEACHERS',
+    programHead: { name: 'Mr. Russel Tadeña', position: 'HRM Program Head', image: require('../assets/images/TEACHERS/HRM DEPARTMENT/Russel Tadena.jpg') },
     teachers: [
       { name: 'Ms. Faith Sugabo', position: 'Full time - HRM Dept.', image: require('../assets/images/TEACHERS/HRM DEPARTMENT/Faith Sugabo.jpg') },
       { name: 'Mr. Kyle Miguel Obiña', position: 'Full time - HRM Dept.', image: require('../assets/images/TEACHERS/HRM DEPARTMENT/Kyle Miguel Obina.jpg') },
@@ -68,36 +64,20 @@ const TEACHERS_DATA = {
     ],
   },
   bsentre: {
-    name: 'BS Entrep Department',
-    icon: 'briefcase-outline',
-    color: '#8B0000',
-    sectionLabel: '👥 TEACHERS',
-    programHead: {
-      name: 'Dr. Maristela Remitar',
-      position: 'BS Entrep Program Head',
-      image: require('../assets/images/TEACHERS/INTREP HEAD/Maristela Remitar.jpg'),
-    },
+    name: 'BS Entrep Department', icon: 'briefcase-outline', color: '#8B0000', sectionLabel: '👥 TEACHERS',
+    programHead: { name: 'Dr. Maristela Remitar', position: 'BS Entrep Program Head', image: require('../assets/images/TEACHERS/INTREP HEAD/Maristela Remitar.jpg') },
     teachers: [
       { name: 'Ms. Angelie Lacanglacang', position: 'Adviser', image: require('../assets/images/TEACHERS/INTREP HEAD/Angelie Lacanglacang.jpg') },
-      
     ],
   },
   coreSubjects: {
-    name: 'Core Subjects',
-    icon: 'book-outline',
-    color: '#1A5CB5',
-    sectionLabel: '👥 TEACHERS',
-    programHead: null,
+    name: 'Core Subjects', icon: 'book-outline', color: '#1A5CB5', sectionLabel: '👥 TEACHERS', programHead: null,
     teachers: [
       { name: 'Mr. Cecilio Uy', position: 'Core Subjects Teacher', image: require('../assets/images/TEACHERS/CORE SUBS/Cecilio Uy.jpg') },
     ],
   },
   elementary: {
-    name: 'Elementary Department',
-    icon: 'school-outline',
-    color: '#32CD32',
-    sectionLabel: '👥 TEACHERS',
-    programHead: null,
+    name: 'Elementary Department', icon: 'school-outline', color: '#32CD32', sectionLabel: '👥 TEACHERS', programHead: null,
     teachers: [
       { name: 'Ms. Corazon Salazar', position: 'Adviser - Kinder Senior', image: require('../assets/images/TEACHERS/ELEM/Corazon Salazar.jpg') },
       { name: 'Ms. Jeramie Dela Cerna', position: 'Adviser - Grade 1 St. Agnes', image: require('../assets/images/TEACHERS/ELEM/Jeramie Dela Cerna.jpg') },
@@ -109,16 +89,12 @@ const TEACHERS_DATA = {
     ],
   },
   jhs: {
-    name: 'Junior Highschool',
-    icon: 'book-outline',
-    color: '#6C63FF',
-    sectionLabel: '👥 TEACHERS',
-    programHead: null,
+    name: 'Junior Highschool', icon: 'book-outline', color: '#6C63FF', sectionLabel: '👥 TEACHERS', programHead: null,
     teachers: [
       { name: 'Mr. Christian Jay Deada', position: 'Adviser - Grade 7 OL Miraculous Medal', image: require('../assets/images/TEACHERS/JR HIGH/Chirstian Jay Deada.jpg') },
       { name: 'Mr. Jan Paul Nalipay', position: 'Adviser - Grade 7 OL Guadalope', image: require('../assets/images/TEACHERS/JR HIGH/Jan Paul Nalipay.jpg') },
       { name: 'Ms. Janine Mahidlaon', position: 'Adviser - Grade 8 OL Sacred Heart', image: require('../assets/images/TEACHERS/JR HIGH/Janine Mahidlaon.jpg') },
-      { name: 'Ms. Ivy Rafaela Chiu', position: 'Adviser - Grade 8 OL Perpetual Help', image: null }, // ✅ Walang image
+      { name: 'Ms. Ivy Rafaela Chiu', position: 'Adviser - Grade 8 OL Perpetual Help', image: null },
       { name: 'Ms. Jia Malesido', position: 'Adviser - Grade 9 OL Nativity', image: require('../assets/images/TEACHERS/JR HIGH/Jia Malesido.jpg') },
       { name: 'Ms. Lucille Blaze Tesorero', position: 'Adviser - Grade 9 OL Assumption', image: require('../assets/images/TEACHERS/JR HIGH/Lucille Blaze Tesorero.jpg') },
       { name: 'Mrs. Monchyll Bacalso', position: 'Adviser - Grade 10 St. Joseph', image: require('../assets/images/TEACHERS/JR HIGH/Monchyll Bacalso.jpg') },
@@ -133,18 +109,14 @@ const TEACHERS_DATA = {
     ],
   },
   shs: {
-    name: 'Senior Highschool',
-    icon: 'school-outline',
-    color: '#FFD700',
-    sectionLabel: '👥 TEACHERS',
-    programHead: null,
+    name: 'Senior Highschool', icon: 'school-outline', color: '#FFD700', sectionLabel: '👥 TEACHERS', programHead: null,
     teachers: [
       { name: 'Ms. Ann May Caninogo', position: 'Adviser - Grade 12 STEM 1', image: require('../assets/images/TEACHERS/SR HIGH/Ann May Canonigo.jpg') },
       { name: 'Mrs. Esmeralda Piala', position: 'Adviser - Grade 12 STEM 2', image: require('../assets/images/TEACHERS/SR HIGH/Esmeralda Piala.jpg') },
       { name: 'Mr. Vince Raymond Batomalague', position: 'Adviser - Grade 12 STEM 3', image: require('../assets/images/TEACHERS/SR HIGH/Vince Raymond Batomalaque.jpg') },
       { name: 'Ms. Princes Danne Rabanez', position: 'Adviser - Grade 12 STEM 4', image: require('../assets/images/TEACHERS/SR HIGH/Princes Danne Rabanes.jpg') },
       { name: 'Ms. Elmie Labustro', position: 'Adviser - Grade 12 HUMSS 1', image: require('../assets/images/TEACHERS/SR HIGH/Elmie Labustro.jpg') },
-     { name: 'Mr. Vincy Innael Tanudra', position: 'Adviser - Grade 12 HUMSS 2', image: null },
+      { name: 'Mr. Vincy Innael Tanudra', position: 'Adviser - Grade 12 HUMSS 2', image: null },
       { name: 'Ms. Cherica Candar', position: 'Adviser - Grade 12 TVL', image: require('../assets/images/TEACHERS/SR HIGH/Cherica Candar.jpg') },
       { name: 'Mr. Michael Vincent Musico', position: 'Adviser - Grade 12 ABM', image: require('../assets/images/TEACHERS/SR HIGH/Michael Vincent Musico.jpg') },
       { name: 'Ms. Celyn Niña Grace Laordin', position: 'Adviser - Grade 11 Sci & Engr. 1', image: require('../assets/images/TEACHERS/SR HIGH/Celyn Nina Grace Laordin.jpg') },
@@ -164,11 +136,7 @@ const TEACHERS_DATA = {
     ],
   },
   staff: {
-    name: 'Staff',
-    icon: 'people-outline',
-    color: '#FF8C00',
-    sectionLabel: '👥 STAFF',
-    programHead: null,
+    name: 'Staff', icon: 'people-outline', color: '#FF8C00', sectionLabel: '👥 STAFF', programHead: null,
     teachers: [
       { name: 'Mrs. Ledovina Batobalonos', position: 'In-charge Library', image: require('../assets/images/TEACHERS/STAFF/Ledovina Batobalonos.jpg') },
       { name: 'Mrs. Noldita Marcelo', position: 'President\'s Office Staff/ TES Focal Person', image: require('../assets/images/TEACHERS/STAFF/Noldita Marcelo.jpg') },
@@ -191,11 +159,7 @@ const TEACHERS_DATA = {
     ],
   },
   maintenance: {
-    name: 'Maintenance Personnel',
-    icon: 'construct-outline',
-    color: '#8B4513',
-    sectionLabel: '👥 MAINTENANCE',
-    programHead: null,
+    name: 'Maintenance Personnel', icon: 'construct-outline', color: '#8B4513', sectionLabel: '👥 MAINTENANCE', programHead: null,
     teachers: [
       { name: 'Mr. Carlo Maasin', position: 'Maintenance', image: require('../assets/images/TEACHERS/STAFF/Carlo Maasin.jpg') },
       { name: 'Mr. Victor Raymunda', position: 'Maintenance', image: require('../assets/images/TEACHERS/STAFF/Victor Raymuna.jpg') },
@@ -206,35 +170,28 @@ const TEACHERS_DATA = {
   },
 };
 
-// ✅ PROGRAM HEAD CARD (Clickable)
+// ✅ PROGRAM HEAD CARD (Walang Korona)
 const ProgramHeadCard = ({ data, color, index, onPress }) => {
   const fadeAnim = useFadeIn(500, index * 100);
   const slideAnim = useSlideUp(30);
   const { scaleAnim, pressIn, pressOut } = usePressAnimation();
 
+  // ✅ Dynamic badge text
+  const isPresident = data.position === 'School President';
+  const badgeText = isPresident ? 'SCHOOL PRESIDENT' : 'PROGRAM HEAD';
+
   return (
-    <Animated.View style={{
-      opacity: fadeAnim,
-      transform: [{ translateY: slideAnim }, { scale: scaleAnim }]
-    }}>
-      <TouchableOpacity 
-        style={[styles.programHeadCard, { borderColor: color }]}
-        onPress={onPress}
-        onPressIn={pressIn}
-        onPressOut={pressOut}
-        activeOpacity={0.9}
-      >
-        <View style={[styles.crownBadge, { backgroundColor: color }]}>
-          <Ionicons name="star" size={12} color="#fff" />
-          <Text style={styles.crownText}>PROGRAM HEAD</Text>
-        </View>
+    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }, { scale: scaleAnim }], marginBottom: 12 }}>
+      <TouchableOpacity style={[styles.programHeadCard, { borderColor: color }]} onPress={onPress} onPressIn={pressIn} onPressOut={pressOut} activeOpacity={0.9}>
         
+        {/* ✅ Formal na Badge (Walang Korona) */}
+        <View style={[styles.crownBadge, { backgroundColor: color, alignSelf: 'flex-start', paddingHorizontal: 10, borderRadius: 8, marginBottom: 10 }]}>
+          <Text style={[styles.crownText, { fontSize: 10, letterSpacing: 0.5 }]}>{badgeText}</Text>
+        </View>
+
         <View style={styles.programHeadContent}>
           {data.image ? (
-            <Image 
-              source={data.image} 
-              style={[styles.programHeadImage, { borderColor: color }]}
-            />
+            <Image source={typeof data.image === 'string' ? { uri: data.image } : data.image} style={[styles.programHeadImage, { borderColor: color }]} />
           ) : (
             <View style={[styles.programHeadImagePlaceholder, { borderColor: color }]}>
               <Ionicons name="person" size={40} color={color} />
@@ -250,29 +207,17 @@ const ProgramHeadCard = ({ data, color, index, onPress }) => {
   );
 };
 
-// ✅ TEACHER CARD (Clickable with Default Icon)
+// ✅ TEACHER CARD
 const TeacherCard = ({ item, index, color, onPress }) => {
   const fadeAnim = useFadeIn(500, index * 80);
   const slideAnim = useSlideUp(30);
   const { scaleAnim, pressIn, pressOut } = usePressAnimation();
 
   return (
-    <Animated.View style={{
-      opacity: fadeAnim,
-      transform: [{ translateY: slideAnim }, { scale: scaleAnim }]
-    }}>
-      <TouchableOpacity 
-        style={styles.teacherCard}
-        onPress={onPress}
-        onPressIn={pressIn}
-        onPressOut={pressOut}
-        activeOpacity={0.9}
-      >
+    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }, { scale: scaleAnim }] }}>
+      <TouchableOpacity style={styles.teacherCard} onPress={onPress} onPressIn={pressIn} onPressOut={pressOut} activeOpacity={0.9}>
         {item.image ? (
-          <Image 
-            source={item.image} 
-            style={[styles.teacherImage, { borderColor: color }]}
-          />
+          <Image source={typeof item.image === 'string' ? { uri: item.image } : item.image} style={[styles.teacherImage, { borderColor: color }]} />
         ) : (
           <View style={[styles.teacherImagePlaceholder, { borderColor: color }]}>
             <Ionicons name="person" size={40} color={color} />
@@ -295,60 +240,31 @@ const TeacherModal = ({ visible, teacher, color, onClose }) => {
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 60,
-          friction: 10,
-          useNativeDriver: true,
-        }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.spring(scaleAnim, { toValue: 1, tension: 60, friction: 10, useNativeDriver: true }),
       ]).start();
     } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
+      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
     }
   }, [visible]);
 
   if (!teacher) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="none" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View style={[
-          styles.modalContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}>
+        <Animated.View style={[styles.modalContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
           <TouchableOpacity style={styles.modalCloseBtn} onPress={onClose}>
             <Ionicons name="close-circle" size={32} color={color} />
           </TouchableOpacity>
-
           {teacher.image ? (
-            <Image 
-              source={teacher.image} 
-              style={[styles.modalImage, { borderColor: color }]}
-            />
+            <Image source={typeof teacher.image === 'string' ? { uri: teacher.image } : teacher.image} style={[styles.modalImage, { borderColor: color }]} />
           ) : (
             <View style={[styles.modalImagePlaceholder, { borderColor: color }]}>
               <Ionicons name="person" size={70} color={color} />
             </View>
           )}
-
           <Text style={styles.modalName}>{teacher.name}</Text>
           <Text style={[styles.modalPosition, { color }]}>{teacher.position}</Text>
         </Animated.View>
@@ -359,16 +275,19 @@ const TeacherModal = ({ visible, teacher, color, onClose }) => {
 
 // ✅ MAIN COMPONENT
 export default function TeacherDirectory() {
-  const [selectedDept, setSelectedDept] = useState('bsit');
+  const [selectedDept, setSelectedDept] = useState('arSisters');
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const [teachersData, setTeachersData] = useState(DEFAULT_TEACHERS);
+  
   const router = useRouter();
-
   const headerAnim = useFadeIn(600);
   const headerSlide = useSlideUp(-20);
   const tabAnim = useSlideUp(100);
 
   const departments = [
+    { key: 'arSisters', label: 'AR Sisters', icon: 'star-outline', color: '#D4AF37' },
     { key: 'bsit', label: 'BSIT', icon: 'desktop-outline', color: '#0D3E86' },
     { key: 'educDept', label: 'Education', icon: 'school-outline', color: '#FF6B35' },
     { key: 'hrm', label: 'BSHM', icon: 'restaurant-outline', color: '#FF8C00' },
@@ -381,7 +300,58 @@ export default function TeacherDirectory() {
     { key: 'maintenance', label: 'Maintenance', icon: 'construct-outline', color: '#8B4513' },
   ];
 
-  const currentDept = TEACHERS_DATA[selectedDept];
+  // ✅ FETCH & CACHE LOGIC
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'teachers'));
+      const firebaseTeachers = [];
+      querySnapshot.forEach((doc) => {
+        firebaseTeachers.push({ id: doc.id, ...doc.data() });
+      });
+
+      if (firebaseTeachers.length > 0) {
+        let mergedData = JSON.parse(JSON.stringify(DEFAULT_TEACHERS)); 
+        
+        firebaseTeachers.forEach(teacher => {
+          let deptKey = 'bsit';
+          const dept = teacher.department?.toLowerCase() || '';
+          
+          if (dept.includes('college') || dept.includes('bsit')) deptKey = 'bsit'; 
+          else if (dept.includes('educ')) deptKey = 'educDept';
+          else if (dept.includes('hrm')) deptKey = 'hrm';
+          else if (dept.includes('entre')) deptKey = 'bsentre';
+          else if (dept.includes('elem')) deptKey = 'elementary';
+          else if (dept.includes('jhs')) deptKey = 'jhs';
+          else if (dept.includes('shs')) deptKey = 'shs';
+          else if (dept.includes('staff')) deptKey = 'staff';
+          else if (dept.includes('maintenance')) deptKey = 'maintenance';
+
+          if (mergedData[deptKey]) {
+            mergedData[deptKey].teachers.unshift({
+              name: teacher.name,
+              position: teacher.position,
+              image: teacher.imageUrl || null 
+            });
+          }
+        });
+
+        setTeachersData(mergedData);
+        await AsyncStorage.setItem('cachedTeachers', JSON.stringify(mergedData)); 
+      }
+    } catch (error) {
+      console.log('No internet or Firebase error. Using cached data...');
+      const cached = await AsyncStorage.getItem('cachedTeachers');
+      if (cached) {
+        setTeachersData(JSON.parse(cached));
+      }
+    }
+  };
+
+  const currentDept = teachersData[selectedDept] || DEFAULT_TEACHERS[selectedDept];
 
   const openTeacherModal = (teacher) => {
     setSelectedTeacher(teacher);
@@ -398,7 +368,6 @@ export default function TeacherDirectory() {
       <View style={styles.gradientOverlay}>
         <SafeAreaView style={{ flex: 1 }} edges={['top']}>
           
-          {/* Header */}
           <Animated.View style={{ opacity: headerAnim, transform: [{ translateY: headerSlide }] }}>
             <View style={styles.headerWrapper}>
               <View style={styles.headerRedAccent} />
@@ -412,95 +381,45 @@ export default function TeacherDirectory() {
             </View>
           </Animated.View>
 
-          {/* Grey Container for Picker */}
           <View style={styles.pickerGreyContainer}>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterContainer}
-            >
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
               {departments.map((dept) => (
                 <TouchableOpacity
                   key={dept.key}
-                  style={[
-                    styles.filterChip,
-                    selectedDept === dept.key && { backgroundColor: dept.color, borderColor: dept.color }
-                  ]}
+                  style={[styles.filterChip, selectedDept === dept.key && { backgroundColor: dept.color, borderColor: dept.color }]}
                   onPress={() => setSelectedDept(dept.key)}
                 >
-                  <Ionicons 
-                    name={dept.icon} 
-                    size={14} 
-                    color={selectedDept === dept.key ? '#fff' : dept.color} 
-                  />
-                  <Text style={[
-                    styles.filterChipText,
-                    selectedDept === dept.key && { color: '#fff' }
-                  ]}>
-                    {dept.label}
-                  </Text>
+                  <Ionicons name={dept.icon} size={14} color={selectedDept === dept.key ? '#fff' : dept.color} />
+                  <Text style={[styles.filterChipText, selectedDept === dept.key && { color: '#fff' }]}>{dept.label}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
 
-          {/* Content */}
-          <ScrollView 
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Department Title */}
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <View style={[styles.deptTitleContainer, { borderLeftColor: currentDept.color }]}>
               <Ionicons name={currentDept.icon} size={24} color={currentDept.color} />
               <Text style={styles.deptTitle}>{currentDept.name}</Text>
             </View>
 
-            {/* Program Head */}
             {currentDept.programHead && (
-              <ProgramHeadCard 
-                data={currentDept.programHead} 
-                color={currentDept.color}
-                index={0}
-                onPress={() => openTeacherModal(currentDept.programHead)}
-              />
+              <ProgramHeadCard data={currentDept.programHead} color={currentDept.color} index={0} onPress={() => openTeacherModal(currentDept.programHead)} />
             )}
 
-            {/* Teachers Grid */}
             {currentDept.teachers.length > 0 && (
               <>
                 <Text style={styles.sectionLabel}>{currentDept.sectionLabel}</Text>
                 <View style={styles.teacherGrid}>
                   {currentDept.teachers.map((teacher, index) => (
-                    <TeacherCard 
-                      key={index} 
-                      item={teacher} 
-                      index={index}
-                      color={currentDept.color}
-                      onPress={() => openTeacherModal(teacher)}
-                    />
+                    <TeacherCard key={index} item={teacher} index={index} color={currentDept.color} onPress={() => openTeacherModal(teacher)} />
                   ))}
                 </View>
               </>
             )}
-
-            {/* Empty State */}
-            {!currentDept.programHead && currentDept.teachers.length === 0 && (
-              <View style={styles.emptyContainer}>
-                <Ionicons name="people-outline" size={60} color="rgba(255,255,255,0.5)" />
-                <Text style={styles.emptyText}>No data available</Text>
-              </View>
-            )}
           </ScrollView>
 
-          {/* Teacher Detail Modal */}
-          <TeacherModal
-            visible={modalVisible}
-            teacher={selectedTeacher}
-            color={currentDept.color}
-            onClose={closeTeacherModal}
-          />
+          <TeacherModal visible={modalVisible} teacher={selectedTeacher} color={currentDept.color} onClose={closeTeacherModal} />
 
-          {/* Bottom Tab */}
           <Animated.View style={[styles.bottomTab, { transform: [{ translateY: tabAnim }] }]}>
             <TabIcon icon="home-outline" label="Home" onPress={() => router.push('/home')} />
             <TabIcon icon="time-outline" label="School" onPress={() => router.push('/history')} />
@@ -517,15 +436,9 @@ export default function TeacherDirectory() {
 
 const TabIcon = ({ icon, label, active, onPress }) => {
   const { scaleAnim, pressIn, pressOut } = usePressAnimation();
-  
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <TouchableOpacity 
-        style={styles.tabItem} 
-        onPress={onPress}
-        onPressIn={pressIn}
-        onPressOut={pressOut}
-      >
+      <TouchableOpacity style={styles.tabItem} onPress={onPress} onPressIn={pressIn} onPressOut={pressOut}>
         <Ionicons name={icon} size={22} color={active ? '#fff' : '#ccc'} />
         <Text style={[styles.tabLabel, { color: active ? '#fff' : '#ccc' }]}>{label}</Text>
       </TouchableOpacity>

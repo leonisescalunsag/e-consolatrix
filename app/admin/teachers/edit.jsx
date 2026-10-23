@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker'; // ✅ Image Picker
+import * as ImagePicker from 'expo-image-picker';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { db } from '../../../config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -13,7 +13,7 @@ export default function EditTeacher() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [image, setImage] = useState(null); // ✅ State para sa image
+  const [image, setImage] = useState(null);
   
   const [form, setForm] = useState({
     name: '',
@@ -22,14 +22,26 @@ export default function EditTeacher() {
     course: ''
   });
 
+  const positions = [
+    'PROGRAM HEAD', 'COLLEGE INSTRUCTOR', 'SHS INSTRUCTOR', 
+    'JHS INSTRUCTOR', 'ELEMENTARY INSTRUCTOR', 'REGISTRAR', 
+    'GUIDANCE COUNSELOR', 'STAFF', 'MAINTENANCE',
+    'SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'
+  ];
+
   const departments = [
     { name: 'College', label: 'College' },
     { name: 'SHS', label: 'Senior High School' },
     { name: 'JHS', label: 'Junior High School' },
     { name: 'Elementary', label: 'Elementary' },
     { name: 'Staff', label: 'Staff' },
-    { name: 'Maintenance', label: 'Maintenance' }
+    { name: 'Maintenance', label: 'Maintenance' },
+    { name: 'AR Sisters', label: 'AR Sisters' }
   ];
+
+  const isARSister = form.department === 'AR Sisters';
+  const hideDepartmentPicker = ['STAFF', 'MAINTENANCE', 'ELEMENTARY INSTRUCTOR', 'JHS INSTRUCTOR'].includes(form.position) || isARSister;
+  const hideCoursePicker = hideDepartmentPicker || form.position === 'REGISTRAR' || form.position === 'GUIDANCE COUNSELOR';
 
   useEffect(() => {
     fetchTeacher();
@@ -43,9 +55,7 @@ export default function EditTeacher() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setForm(data);
-        if (data.imageUrl) {
-          setImage(data.imageUrl); // ✅ I-load yung existing image kung meron
-        }
+        if (data.imageUrl) setImage(data.imageUrl);
       } else {
         Alert.alert('Error', 'Teacher not found');
         router.back();
@@ -57,7 +67,6 @@ export default function EditTeacher() {
     }
   };
 
-  // ✅ Function para pumili ng bagong image
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -80,13 +89,25 @@ export default function EditTeacher() {
 
     setSaving(true);
     try {
+      let finalDept = form.department;
+      if (form.position === 'STAFF') finalDept = 'Staff';
+      if (form.position === 'MAINTENANCE') finalDept = 'Maintenance';
+      if (form.position === 'ELEMENTARY INSTRUCTOR') finalDept = 'Elementary';
+      if (form.position === 'JHS INSTRUCTOR') finalDept = 'JHS';
+      if (['SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'].includes(form.position)) {
+        finalDept = 'AR Sisters';
+      }
+
       const docRef = doc(db, 'teachers', id);
       await updateDoc(docRef, {
-        ...form,
-        imageUrl: image, // ✅ I-save yung bagong image
+        name: form.name,
+        position: form.position,
+        department: finalDept,
+        course: hideCoursePicker ? '' : form.course,
+        imageUrl: image, 
         updatedAt: new Date()
       });
-      Alert.alert('Success', 'Faculty/Staff updated successfully');
+      Alert.alert('Success', 'Updated successfully');
       router.back();
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -113,7 +134,6 @@ export default function EditTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.formCard}>
           
-          {/* ✅ IMAGE UPLOADER */}
           <View style={styles.imageUploadContainer}>
             <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
               {image ? (
@@ -137,34 +157,53 @@ export default function EditTeacher() {
           />
 
           <Text style={styles.formLabel}>Position *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., College Instructor, Program Head"
-            value={form.position}
-            onChangeText={(text) => setForm({...form, position: text})}
-          />
-
-          <Text style={styles.formLabel}>Department *</Text>
           <View style={styles.pickerWrapper}>
             <Picker
-              selectedValue={form.department}
-              onValueChange={(value) => setForm({...form, department: value, course: ''})}
+              selectedValue={form.position}
+              onValueChange={(value) => {
+                setForm({...form, position: value});
+                if (['SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'].includes(value)) {
+                  setForm(prev => ({...prev, position: value, department: 'AR Sisters'}));
+                }
+              }}
               style={styles.picker}
             >
-              <Picker.Item label="Select Department" value="" color="#999" />
-              {departments.map((dept, index) => (
-                <Picker.Item key={index} label={dept.label} value={dept.name} color="#333" />
+              <Picker.Item label="Select Position" value="" color="#999" />
+              {positions.map((pos, index) => (
+                <Picker.Item key={index} label={pos} value={pos} color="#333" />
               ))}
             </Picker>
           </View>
 
-          <Text style={styles.formLabel}>Course/Subject</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., BSIT DEPARTMENT"
-            value={form.course}
-            onChangeText={(text) => setForm({...form, course: text})}
-          />
+          {!hideDepartmentPicker && (
+            <>
+              <Text style={styles.formLabel}>Department *</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={form.department}
+                  onValueChange={(value) => setForm({...form, department: value, course: ''})}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Department" value="" color="#999" />
+                  {departments.map((dept, index) => (
+                    <Picker.Item key={index} label={dept.label} value={dept.name} color="#333" />
+                  ))}
+                </Picker>
+              </View>
+            </>
+          )}
+
+          {!hideCoursePicker && form.department === 'College' && (
+            <>
+              <Text style={styles.formLabel}>Course/Subject</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g., BSIT DEPARTMENT"
+                value={form.course}
+                onChangeText={(text) => setForm({...form, course: text})}
+              />
+            </>
+          )}
 
           <View style={styles.buttonRow}>
             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()}>
@@ -188,15 +227,12 @@ const styles = StyleSheet.create({
   backBtn: { padding: 4 },
   scrollContent: { padding: 16, paddingBottom: 30 },
   formCard: { backgroundColor: '#fff', borderRadius: 18, padding: 18, elevation: 4 },
-  
-  // ✅ Styles para sa Image
   imageUploadContainer: { alignItems: 'center', marginBottom: 20 },
   imagePicker: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#F0F4F8', borderWidth: 2, borderColor: '#0D3E86', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
   profileImage: { width: '100%', height: '100%' },
   imagePlaceholder: { alignItems: 'center' },
   imageText: { fontSize: 10, color: '#0D3E86', marginTop: 4, fontFamily: 'Montserrat-Bold' },
   changePhotoText: { fontSize: 12, color: '#666', marginTop: 8, fontFamily: 'Montserrat-Medium' },
-
   formLabel: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 5, fontFamily: 'Montserrat-Medium' },
   input: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10, padding: 12, fontSize: 14, color: '#333', marginBottom: 14, fontFamily: 'Montserrat-Regular' },
   pickerWrapper: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10, marginBottom: 14, overflow: 'hidden' },

@@ -215,6 +215,7 @@ export const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.2)',
     overflow: 'hidden',
     alignItems: 'center',
+    minHeight: 130, // ✅ Fixed height para pantay-pantay sila
   },
   sideBorder: {
     position: 'absolute',
@@ -228,6 +229,8 @@ export const styles = StyleSheet.create({
   cardContent: {
     alignItems: 'center',
     paddingVertical: 8,
+    justifyContent: 'center',
+    flex: 1,
   },
   iconCircle: {
     width: 60,
@@ -238,13 +241,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  
+  // ✅ MENU CARD TITLE (Inayos para hindi mag-wrap)
   menuTitle: {
-    fontSize: 13,
+    fontSize: 12, 
     fontWeight: '600',
     color: '#1A1A2E',
     textAlign: 'center',
     fontFamily: 'Montserrat-Medium',
-    lineHeight: 18,
+    lineHeight: 16,
   },
   
   // ✅ CHAT BUTTON
@@ -288,11 +293,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: width / 6.2,
   },
+  
+  // ✅ TAB LABEL (Inayos para hindi mag-wrap)
   tabLabel: {
     color: '#fff',
-    fontSize: 11,
-    marginTop: 5,
+    fontSize: 9.5, 
+    marginTop: 4,
     fontWeight: '600',
+    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
@@ -329,13 +337,6 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#E8E8E8',
   },
-  sidebarLogoSmall: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 12,
-    backgroundColor: '#f0f0f0',
-  },
   sidebarBrandText: {
     fontSize: 30,
     fontWeight: 'bold',
@@ -363,7 +364,6 @@ export const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#e6e3e3d2',
     marginVertical: 10,
-    
   },
   sidebarFooter: {
     paddingBottom: 30,

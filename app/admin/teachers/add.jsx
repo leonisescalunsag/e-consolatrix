@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput,
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker'; // ✅ Image Picker
+import * as ImagePicker from 'expo-image-picker';
 import { db } from '../../../config/firebase';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 
@@ -11,29 +11,38 @@ export default function AddTeacher() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [image, setImage] = useState(null); // ✅ State para sa image
+  const [image, setImage] = useState(null);
   
   const [form, setForm] = useState({
     name: '',
     position: '',
-    department: 'College', // Pinalitan natin para mag-match sa UI
+    department: 'College',
     course: ''
   });
 
+  // ✅ Idinagdag ang AR Sisters sa positions
   const positions = [
     'PROGRAM HEAD', 'COLLEGE INSTRUCTOR', 'SHS INSTRUCTOR', 
-    'JHS INSTRUCTOR', 'ELEMENTARY INSTRUCTOR', 'DEAN', 
-    'REGISTRAR', 'GUIDANCE COUNSELOR', 'STAFF', 'MAINTENANCE'
+    'JHS INSTRUCTOR', 'ELEMENTARY INSTRUCTOR', 'REGISTRAR', 
+    'GUIDANCE COUNSELOR', 'STAFF', 'MAINTENANCE',
+    'SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'
   ];
 
+  // ✅ Idinagdag ang AR Sisters sa department
   const departments = [
     { name: 'College', label: 'College' },
     { name: 'SHS', label: 'Senior High School' },
     { name: 'JHS', label: 'Junior High School' },
     { name: 'Elementary', label: 'Elementary' },
     { name: 'Staff', label: 'Staff' },
-    { name: 'Maintenance', label: 'Maintenance' }
+    { name: 'Maintenance', label: 'Maintenance' },
+    { name: 'AR Sisters', label: 'AR Sisters' }
   ];
+
+  // ✅ Auto-hide logic para sa AR Sisters at iba
+  const isARSister = form.department === 'AR Sisters';
+  const hideDepartmentPicker = ['STAFF', 'MAINTENANCE', 'ELEMENTARY INSTRUCTOR', 'JHS INSTRUCTOR'].includes(form.position) || isARSister;
+  const hideCoursePicker = hideDepartmentPicker || form.position === 'REGISTRAR' || form.position === 'GUIDANCE COUNSELOR';
 
   useEffect(() => {
     fetchCourses();
@@ -52,14 +61,13 @@ export default function AddTeacher() {
     }
   };
 
-  // ✅ Function para pumili ng image sa gallery
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5, // Compress ng konti para hindi bumigat
-      base64: true, // I-convert sa base64 (pwede itong i-save sa Firestore as string)
+      quality: 0.5,
+      base64: true,
     });
 
     if (!result.canceled) {
@@ -68,18 +76,30 @@ export default function AddTeacher() {
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.position || !form.department) {
+    if (!form.name || !form.position) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
     setLoading(true);
     try {
-      // Sa totoong system, dito ka mag-uupload sa Firebase Storage.
-      // Pero para sa Capstone, pwede nating i-save muna yung URI (local path) o Base64.
+      let finalDept = form.department;
+      if (form.position === 'STAFF') finalDept = 'Staff';
+      if (form.position === 'MAINTENANCE') finalDept = 'Maintenance';
+      if (form.position === 'ELEMENTARY INSTRUCTOR') finalDept = 'Elementary';
+      if (form.position === 'JHS INSTRUCTOR') finalDept = 'JHS';
+      
+      // ✅ Force AR Sisters dept pag AR position
+      if (['SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'].includes(form.position)) {
+        finalDept = 'AR Sisters';
+      }
+
       await addDoc(collection(db, 'teachers'), {
-        ...form,
-        imageUrl: image, // ✅ Naka-save yung image path/URL
+        name: form.name,
+        position: form.position,
+        department: finalDept,
+        course: hideCoursePicker ? '' : form.course,
+        imageUrl: image || null, 
         createdAt: new Date()
       });
       Alert.alert('Success', 'Faculty/Staff added successfully');
@@ -109,7 +129,6 @@ export default function AddTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.formCard}>
           
-          {/* ✅ IMAGE UPLOADER */}
           <View style={styles.imageUploadContainer}>
             <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
               {image ? (
@@ -135,7 +154,13 @@ export default function AddTeacher() {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={form.position}
-              onValueChange={(value) => setForm({...form, position: value})}
+              onValueChange={(value) => {
+                setForm({...form, position: value});
+                // Auto set dept pag AR position
+                if (['SCHOOL PRESIDENT', 'SCHOOL ASSISTANT PRINCIPAL', 'SCHOOL TREASURER', 'ADMINISTRATOR'].includes(value)) {
+                  setForm(prev => ({...prev, position: value, department: 'AR Sisters'}));
+                }
+              }}
               style={styles.picker}
             >
               <Picker.Item label="Select Position" value="" color="#999" />
@@ -145,21 +170,25 @@ export default function AddTeacher() {
             </Picker>
           </View>
 
-          <Text style={styles.formLabel}>Department *</Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={form.department}
-              onValueChange={(value) => setForm({...form, department: value, course: ''})}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select Department" value="" color="#999" />
-              {departments.map((dept, index) => (
-                <Picker.Item key={index} label={dept.label} value={dept.name} color="#333" />
-              ))}
-            </Picker>
-          </View>
+          {!hideDepartmentPicker && (
+            <>
+              <Text style={styles.formLabel}>Department *</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={form.department}
+                  onValueChange={(value) => setForm({...form, department: value, course: ''})}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select Department" value="" color="#999" />
+                  {departments.map((dept, index) => (
+                    <Picker.Item key={index} label={dept.label} value={dept.name} color="#333" />
+                  ))}
+                </Picker>
+              </View>
+            </>
+          )}
 
-          {form.department === 'College' && (
+          {!hideCoursePicker && form.department === 'College' && (
             <>
               <Text style={styles.formLabel}>Course/Subject</Text>
               <View style={styles.pickerWrapper}>
@@ -194,7 +223,6 @@ const styles = StyleSheet.create({
   backBtn: { padding: 4 },
   scrollContent: { padding: 16, paddingBottom: 40, marginTop: 10 },
   formCard: { backgroundColor: '#fff', borderRadius: 18, padding: 18, elevation: 4 },
-  // ✅ Styles para sa Image
   imageUploadContainer: { alignItems: 'center', marginBottom: 20 },
   imagePicker: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#F0F4F8', borderWidth: 2, borderColor: '#0D3E86', borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
   profileImage: { width: '100%', height: '100%' },

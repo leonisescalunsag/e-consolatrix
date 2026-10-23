@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
   },
   
-  // ✅ HEADER - with gradient effect
+  // ✅ HEADER
   header: {
     backgroundColor: '#0D3E86',
     paddingHorizontal: 20,
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     letterSpacing: 0.5,
     textShadowColor: 'rgba(0,0,0,0.2)',
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     fontStyle: 'italic',
   },
@@ -132,52 +132,32 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(13, 62, 134, 0.05)',
   },
-  
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
   },
-  
   categoryBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+    flexShrink: 1, 
   },
-  
   categoryText: {
     fontSize: 11,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+  newsDate: {
+    fontSize: 12,
+    color: '#94a3b8',
+    fontFamily: 'Montserrat-Medium',
+    marginLeft: 8,
   },
-  
-  iconBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  
-  textContainer: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  
   newsTitle: {
     fontSize: 17,
     fontWeight: '700',
@@ -186,30 +166,28 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     letterSpacing: 0.2,
   },
-  
-  newsDesc: {
+  newsPreview: {
     fontSize: 13,
     color: '#64748B',
     lineHeight: 18,
-    marginBottom: 12,
+    marginBottom: 10,
+    fontFamily: 'Montserrat-Regular',
   },
-  
-  metaRow: {
+  readMoreContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 15,
+    gap: 6,
     alignSelf: 'flex-start',
+    backgroundColor: 'rgba(13, 62, 134, 0.06)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  
-  metaText: {
-    fontSize: 11,
-    color: '#64748B',
-    marginLeft: 4,
-    marginRight: 10,
-    fontWeight: '500',
+  readMoreText: {
+    fontSize: 12,
+    color: '#0D3E86',
+    fontWeight: '600',
+    fontFamily: 'Montserrat-Medium',
   },
 
   // ✅ EMPTY STATE
@@ -255,118 +233,90 @@ export const styles = StyleSheet.create({
   },
   tabLabel: { 
     color: '#fff', 
-    fontSize: 11, 
+    fontSize: 10, 
     marginTop: 5, 
     fontWeight: '600',
+    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
 
-  // ✅ ADD THESE STYLES AT THE BOTTOM OF NewsStyles.js
-
-// News Card Preview
-newsPreview: {
-  fontSize: 13,
-  color: '#64748B',
-  lineHeight: 18,
-  marginBottom: 10,
-  fontFamily: 'Montserrat-Regular',
-},
-
-// Read More
-readMoreContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 6,
-  alignSelf: 'flex-start',
-  backgroundColor: 'rgba(13, 62, 134, 0.06)',
-  paddingHorizontal: 12,
-  paddingVertical: 4,
-  borderRadius: 12,
-},
-readMoreText: {
-  fontSize: 12,
-  color: '#0D3E86',
-  fontWeight: '600',
-  fontFamily: 'Montserrat-Medium',
-},
-
-// ✅ MODAL STYLES
-modalOverlay: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'rgba(0,0,0,0.5)',
-},
-modalBackdrop: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-},
-modalContainer: {
-  width: '90%',
-  maxHeight: '80%',
-  backgroundColor: '#FFFFFF',
-  borderRadius: 24,
-  padding: 24,
-  elevation: 10,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 10 },
-  shadowOpacity: 0.25,
-  shadowRadius: 20,
-},
-modalCloseBtn: {
-  position: 'absolute',
-  top: 12,
-  right: 12,
-  zIndex: 10,
-  backgroundColor: '#F5F5F5',
-  borderRadius: 20,
-  padding: 4,
-},
-modalCategoryBadge: {
-  paddingHorizontal: 14,
-  paddingVertical: 4,
-  borderRadius: 20,
-  alignSelf: 'flex-start',
-  marginBottom: 12,
-},
-modalCategoryText: {
-  fontSize: 12,
-  fontWeight: '700',
-  textTransform: 'uppercase',
-  letterSpacing: 0.5,
-},
-modalTitle: {
-  fontSize: 22,
-  fontWeight: '800',
-  color: '#1A1A2E',
-  fontFamily: 'Montserrat-Bold',
-  marginBottom: 8,
-  lineHeight: 28,
-},
-modalDateRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 6,
-  marginBottom: 16,
-},
-modalDate: {
-  fontSize: 13,
-  color: '#64748B',
-  fontFamily: 'Montserrat-Medium',
-},
-modalDescriptionContainer: {
-  maxHeight: 400,
-},
-modalDescription: {
-  fontSize: 15,
-  color: '#2D3748',
-  lineHeight: 24,
-  fontFamily: 'Montserrat-Regular',
-  textAlign: 'justify',
-},
+  // ✅ MODAL STYLES
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContainer: {
+    width: '90%',
+    maxHeight: '80%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+  },
+  modalCloseBtn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 20,
+    padding: 4,
+  },
+  modalCategoryBadge: {
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  modalCategoryText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1A1A2E',
+    fontFamily: 'Montserrat-Bold',
+    marginBottom: 8,
+    lineHeight: 28,
+  },
+  modalDateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 16,
+  },
+  modalDate: {
+    fontSize: 13,
+    color: '#64748B',
+    fontFamily: 'Montserrat-Medium',
+  },
+  modalDescriptionContainer: {
+    maxHeight: 400,
+  },
+  modalDescription: {
+    fontSize: 15,
+    color: '#2D3748',
+    lineHeight: 24,
+    fontFamily: 'Montserrat-Regular',
+    textAlign: 'justify',
+  },
 });

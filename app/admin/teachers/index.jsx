@@ -14,13 +14,16 @@ export default function FacultyManagement() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
 
+  // ✅ Idinagdag ang AR Sisters sa filter
   const departments = [
     { name: 'All', label: 'All' },
+    { name: 'AR Sisters', label: 'AR Sisters' },
     { name: 'College', label: 'College' },
     { name: 'SHS', label: 'Senior High' },
     { name: 'JHS', label: 'Junior High' },
     { name: 'Elementary', label: 'Elementary' },
-    { name: 'Staff', label: 'Staff' }
+    { name: 'Staff', label: 'Staff' },
+    { name: 'Maintenance', label: 'Maintenance' }
   ];
 
   useEffect(() => {
@@ -99,7 +102,6 @@ export default function FacultyManagement() {
           <AdminCard style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.cardInfo}>
-                {/* ✅ Dito na natin pinapasok yung Image kung meron, kung wala yung Initials */}
                 {item.imageUrl ? (
                   <Image source={{ uri: item.imageUrl }} style={styles.avatarImage} />
                 ) : (
@@ -125,7 +127,7 @@ export default function FacultyManagement() {
             </View>
             <View style={styles.details}>
               <Text style={styles.detailText}>💼 {item.position}</Text>
-              {item.course && <Text style={styles.detailText}>📚 {item.course}</Text>}
+              {item.course ? <Text style={styles.detailText}>📚 {item.course}</Text> : null}
             </View>
           </AdminCard>
         )}
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   cardInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#0D3E86', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  avatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#ddd' }, // ✅ Bagong style
+  avatarImage: { width: 44, height: 44, borderRadius: 22, marginRight: 12, backgroundColor: '#ddd' },
   avatarText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   nameContainer: { flex: 1 },
   name: { fontSize: 15, fontWeight: 'bold', color: '#1A1A2E', marginBottom: 3 },

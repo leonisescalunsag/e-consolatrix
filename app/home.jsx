@@ -10,14 +10,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { collection, onSnapshot, orderBy, query, limit } from 'firebase/firestore';
 
-// ✅ MENU DATA
+// ✅ MENU DATA (Pinaikli ang News & Updates)
 const MENU_DATA = [
   { id: '1', title: 'School History', icon: 'book-outline', color: '#FF0000', route: '/history' },
   { id: '2', title: 'Courses and Strands', icon: 'school-outline', color: '#FFD700', route: '/courses' }, 
   { id: '3', title: 'Faculty & Staff', icon: 'people-outline', color: '#32CD32', route: '/teachers' },
   { id: '4', title: 'Rules and Policies', icon: 'document-text-outline', color: '#0000FF', route: '/rules' },
   { id: '5', title: 'Campus Tour', icon: 'map-outline', color: '#6C63FF', route: '/virtualtour' },
-  { id: '6', title: 'News and Announcements', icon: 'newspaper-outline', color: '#FFA500', route: '/news' },
+  { id: '6', title: 'News & Updates', icon: 'newspaper-outline', color: '#FFA500', route: '/news' },
   { id: '7', title: 'School Statistics', icon: 'stats-chart-outline', color: '#8B0000', route: '/statistics' },
 ];
 
@@ -143,7 +143,7 @@ const MenuCard = ({ item, index, onPress, cardAnim }) => {
             <View style={styles.iconCircle}>
               <Ionicons name={item.icon} size={28} color="#0D3E86" />
             </View>
-            <Text style={styles.menuTitle}>{item.title}</Text>
+            <Text style={styles.menuTitle} numberOfLines={2}>{item.title}</Text>
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -169,19 +169,11 @@ const TabIcon = ({ icon, label, active, onPress }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.9,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleAnim, { toValue: 0.9, useNativeDriver: true }).start();
   };
 
   const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }).start();
   };
 
   return (
@@ -194,7 +186,7 @@ const TabIcon = ({ icon, label, active, onPress }) => {
         activeOpacity={0.8}
       >
         <Ionicons name={icon} size={22} color={active ? '#fff' : '#ccc'} />
-        <Text style={[styles.tabLabel, { color: active ? '#fff' : '#ccc' }]}>{label}</Text>
+        <Text style={[styles.tabLabel, { color: active ? '#fff' : '#ccc' }]} numberOfLines={1}>{label}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -242,7 +234,7 @@ export default function HomeScreen() {
         }).start();
       }
     }, (error) => {
-      console.error('Error fetching notifications:', error);
+      console.log('Offline mode: Firebase notification error caught');
     });
 
     return () => unsubscribe();
@@ -304,7 +296,6 @@ export default function HomeScreen() {
     />
   );
 
-  // ✅ NOTIFICATION HEADER WITH ANIMATION
   const NotificationHeader = () => {
     if (notifications.length === 0) return null;
     
@@ -374,7 +365,6 @@ export default function HomeScreen() {
               <Ionicons name="menu-outline" size={32} color="#fff" />
             </TouchableOpacity>
             
-            {/* ✅ BELL WITH BADGE */}
             <TouchableOpacity 
               activeOpacity={0.7} 
               onPress={handleViewNews}
@@ -412,7 +402,6 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        {/* ✅ FLATLIST WITH NOTIFICATION HEADER (SCROLLABLE) */}
         <FlatList
           data={MENU_DATA}
           renderItem={renderItem}
@@ -428,7 +417,7 @@ export default function HomeScreen() {
           <TabIcon icon="home" label="Home" active onPress={() => router.push('/home')} />
           <TabIcon icon="time-outline" label="School" onPress={() => router.push('/history')} />
           <TabIcon icon="school-outline" label="Courses" onPress={() => router.push('/courses')} />
-          <TabIcon icon="people-outline" label="Teacher" onPress={() => router.push('/teachers')} />
+          <TabIcon icon="people-outline" label="Faculty" onPress={() => router.push('/teachers')} /> 
           <TabIcon icon="book-outline" label="Rules" onPress={() => router.push('/rules')} />
           <TabIcon icon="newspaper-outline" label="News" onPress={() => router.push('/news')} />
         </Animated.View>
@@ -443,27 +432,24 @@ export default function HomeScreen() {
 
       </Animated.View>
 
-      {/* ✅ SIDEBAR MODAL - No Admin Login */}
+      {/* ✅ SIDEBAR MODAL */}
       <Modal animationType="fade" transparent={true} visible={isSidebarVisible}>
         <View style={styles.modalOverlay}>
           <View style={styles.sidebarContainer}>
-            {/* Sidebar Header */}
             <View style={styles.sidebarBrandCard}>
               <Text style={styles.sidebarBrandText}>e-Consolatrix</Text>
             </View>
 
-            {/* Sidebar Menu - No Admin Login */}
             <View style={styles.sidebarMenu}>
               <SidebarLink title="School History" onPress={() => { setSidebarVisible(false); router.push('/history'); }} />
               <SidebarLink title="Courses and Strands" onPress={() => { setSidebarVisible(false); router.push('/courses'); }} />
-              <SidebarLink title="Teacher Directory" onPress={() => { setSidebarVisible(false); router.push('/teachers'); }} />
+              <SidebarLink title="Faculty and Staff" onPress={() => { setSidebarVisible(false); router.push('/teachers'); }} />
               <SidebarLink title="Rules and Policies" onPress={() => { setSidebarVisible(false); router.push('/rules'); }} />
               <SidebarLink title="Campus Tour" onPress={() => { setSidebarVisible(false); router.push('/virtualtour'); }} />
               <SidebarLink title="News and Announcements" onPress={() => { setSidebarVisible(false); router.push('/news'); }} />
               <SidebarLink title="School Statistics" onPress={() => { setSidebarVisible(false); router.push('/statistics'); }} />
             </View>
 
-            {/* Sidebar Footer - Log out only */}
             <View style={styles.sidebarFooter}>
               <SidebarItem 
                 icon="log-out-outline" 
