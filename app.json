@@ -4,7 +4,7 @@
     "slug": "e-consolatrix",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/bg2.png",
+    "icon": "./assets/images/bg3.png",
     "backgroundColor": "#ffffff",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/bg2.png",
+        "foregroundImage": "./assets/images/bg3.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.leonises.econsolatrix"
@@ -29,13 +29,15 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/bg2.png",
+          "image": "./assets/images/bg3.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
