@@ -88,7 +88,6 @@ const AnimatedCourseCard = ({ item, index, sectionIndex }) => {
         <View style={styles.deptBadge}>
           <Text style={styles.deptBadgeText}>{item.level === 'shs' ? 'SHS' : 'College'}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -227,7 +226,7 @@ export default function CoursesScreen() {
           <TabIcon icon="home-outline" label="Home" onPress={() => router.push('/home')} />
           <TabIcon icon="time-outline" label="School" onPress={() => router.push('/history')} />
           <TabIcon icon="school" label="Courses" active onPress={() => router.push('/courses')} />
-          <TabIcon icon="people-outline" label="Teacher" onPress={() => router.push('/teachers')} />
+          <TabIcon icon="people-outline" label="Faculty" onPress={() => router.push('/teachers')} />
           <TabIcon icon="book-outline" label="Rules" onPress={() => router.push('/rules')} />
           <TabIcon icon="newspaper-outline" label="News" onPress={() => router.push('/news')} />
         </Animated.View>

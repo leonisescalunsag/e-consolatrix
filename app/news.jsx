@@ -307,10 +307,10 @@ export default function NewsScreen() {
         <TabIcon icon="home-outline" label="Home" onPress={() => router.push('/home')} />
         <TabIcon icon="time-outline" label="School" onPress={() => router.push('/history')} />
         <TabIcon icon="school-outline" label="Courses" onPress={() => router.push('/courses')} />
-        <TabIcon icon="people-outline" label="Teacher" onPress={() => router.push('/teachers')} />
+        <TabIcon icon="people-outline" label="Faculty" onPress={() => router.push('/teachers')} />
         <TabIcon icon="book-outline" label="Rules" onPress={() => router.push('/rules')} />
         <TabIcon icon="newspaper-outline" label="News" active />
       </Animated.View>
     </SafeAreaView>
-  );
+  );  
 }
