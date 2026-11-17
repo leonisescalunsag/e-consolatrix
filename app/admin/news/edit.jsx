@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput, Platform, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { db } from '../../../config/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function EditNews() {
   const router = useRouter();
@@ -18,7 +19,10 @@ export default function EditNews() {
     description: '',
     category: 'Announcements',
     date: '',
-    views: 0
+    views: 0,
+    image: null, // ✅ Added image state
+    icon: 'document-text',
+    color: '#3b82f6'
   });
 
   const categories = [
@@ -37,7 +41,7 @@ export default function EditNews() {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        setForm(docSnap.data());
+        setForm({ ...form, ...docSnap.data() });
       } else {
         Alert.alert('Error', 'News not found');
         router.back();
@@ -49,7 +53,27 @@ export default function EditNews() {
     }
   };
 
-  // ✅ Format date for display
+  // ✅ Image Picker
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Denied", "Please allow access to your gallery to upload images.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.3,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      setForm({ ...form, image: `data:image/jpeg;base64,${result.assets[0].base64}` });
+    }
+  };
+
   const formatDate = (date) => {
     if (!date) return '';
     return date.toLocaleDateString('en-US', {
@@ -59,7 +83,6 @@ export default function EditNews() {
     });
   };
 
-  // ✅ Handle date change
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -96,7 +119,6 @@ export default function EditNews() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -110,7 +132,6 @@ export default function EditNews() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.formCard}>
-          {/* Title */}
           <Text style={styles.formLabel}>Title *</Text>
           <TextInput
             style={styles.input}
@@ -120,13 +141,8 @@ export default function EditNews() {
             onChangeText={(text) => setForm({...form, title: text})}
           />
 
-          {/* ✅ CATEGORY SELECTION - SCROLLABLE */}
           <Text style={styles.formLabel}>Category *</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryContainer}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryContainer}>
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat.name}
@@ -135,29 +151,16 @@ export default function EditNews() {
                   form.category === cat.name && styles.categoryBtnActive,
                   { borderColor: form.category === cat.name ? cat.color : '#E8E8E8' }
                 ]}
-                onPress={() => setForm({
-                  ...form, 
-                  category: cat.name,
-                  icon: cat.icon,
-                  color: cat.color
-                })}
+                onPress={() => setForm({ ...form, category: cat.name, icon: cat.icon, color: cat.color })}
               >
-                <Ionicons 
-                  name={cat.icon} 
-                  size={14} 
-                  color={form.category === cat.name ? '#fff' : cat.color} 
-                />
-                <Text style={[
-                  styles.categoryText,
-                  form.category === cat.name && styles.categoryTextActive
-                ]}>
+                <Ionicons name={cat.icon} size={14} color={form.category === cat.name ? '#fff' : cat.color} />
+                <Text style={[styles.categoryText, form.category === cat.name && styles.categoryTextActive]}>
                   {cat.name}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Description */}
           <Text style={styles.formLabel}>Description *</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
@@ -170,13 +173,19 @@ export default function EditNews() {
             textAlignVertical="top"
           />
 
-          {/* ✅ DATE PICKER */}
+          {/* ✅ IMAGE UPLOAD SECTION */}
+          <Text style={styles.formLabel}>Image (Optional)</Text>
+          <TouchableOpacity onPress={pickImage} style={styles.imagePickerBtn}>
+            <Ionicons name="image-outline" size={20} color="#0D3E86" />
+            <Text style={styles.imagePickerText}>{form.image ? "Change Image" : "Select Image"}</Text>
+          </TouchableOpacity>
+          
+          {form.image && (
+            <Image source={{ uri: form.image }} style={styles.previewImage} resizeMode="cover" />
+          )}
+
           <Text style={styles.formLabel}>Date</Text>
-          <TouchableOpacity 
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)} activeOpacity={0.7}>
             <Ionicons name="calendar-outline" size={20} color="#0D3E86" />
             <Text style={[styles.dateButtonText, !form.date && styles.datePlaceholder]}>
               {form.date || 'Select Date'}
@@ -192,24 +201,12 @@ export default function EditNews() {
             />
           )}
 
-          {/* Buttons */}
           <View style={styles.buttonRow}>
-            <TouchableOpacity 
-              style={[styles.button, styles.cancelButton]}
-              onPress={() => router.back()}
-              activeOpacity={0.8}
-            >
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleUpdate}
-              disabled={saving}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.saveButtonText}>
-                {saving ? 'Saving...' : 'Update News'}
-              </Text>
+            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate} disabled={saving}>
+              <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Update News'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -219,162 +216,57 @@ export default function EditNews() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
+  container: { flex: 1, backgroundColor: '#F5F5F5' },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 14,
-    backgroundColor: '#0D3E86',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingTop: 50, paddingBottom: 14,
+    backgroundColor: '#0D3E86', borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
+    elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8,
   },
-  headerCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerTitle: {
-    fontSize: 19,
-    fontWeight: 'bold',
-    color: '#fff',
-    fontFamily: 'Montserrat-Bold',
-  },
-  backBtn: {
-    padding: 4,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
+  headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerTitle: { fontSize: 19, fontWeight: 'bold', color: '#fff', fontFamily: 'Montserrat-Bold' },
+  backBtn: { padding: 4 },
+  scrollContent: { padding: 16, paddingBottom: 30 },
   formCard: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 18,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    backgroundColor: '#fff', borderRadius: 18, padding: 18,
+    elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8,
   },
-  formLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
-    fontFamily: 'Montserrat-Medium',
-  },
+  formLabel: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 5, fontFamily: 'Montserrat-Medium' },
   input: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 14,
-    fontFamily: 'Montserrat-Regular',
+    backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10,
+    padding: 12, fontSize: 14, color: '#333', marginBottom: 14, fontFamily: 'Montserrat-Regular',
   },
-  textArea: {
-    height: 100,
-    paddingTop: 12,
-  },
-  // ✅ DATE BUTTON
+  textArea: { height: 100, paddingTop: 12 },
   dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 14,
-    gap: 10,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F5F5',
+    borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 10, padding: 12, marginBottom: 14, gap: 10,
   },
-  dateButtonText: {
-    fontSize: 14,
-    color: '#333',
-    fontFamily: 'Montserrat-Regular',
-  },
-  datePlaceholder: {
-    color: '#999',
-  },
-  // ✅ SCROLLABLE CATEGORY CONTAINER
-  categoryContainer: {
-    flexDirection: 'row',
-    paddingVertical: 4,
-    gap: 8,
-  },
+  dateButtonText: { fontSize: 14, color: '#333', fontFamily: 'Montserrat-Regular' },
+  datePlaceholder: { color: '#999' },
+  categoryContainer: { flexDirection: 'row', paddingVertical: 4, gap: 8 },
   categoryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderWidth: 1.5,
-    borderRadius: 10,
-    gap: 4,
-    backgroundColor: '#F5F5F5',
-    minHeight: 38,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1.5, borderRadius: 10,
+    gap: 4, backgroundColor: '#F5F5F5', minHeight: 38,
   },
-  categoryBtnActive: {
-    backgroundColor: '#0D3E86',
-    borderColor: '#0D3E86',
-  },
-  categoryText: {
-    fontSize: 11,
-    fontWeight: '600',
-    fontFamily: 'Montserrat-Medium',
-    color: '#333',
-    textAlign: 'center',
-  },
-  categoryTextActive: {
-    color: '#fff',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 6,
-  },
+  categoryBtnActive: { backgroundColor: '#0D3E86', borderColor: '#0D3E86' },
+  categoryText: { fontSize: 11, fontWeight: '600', fontFamily: 'Montserrat-Medium', color: '#333', textAlign: 'center' },
+  categoryTextActive: { color: '#fff' },
+  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 6 },
   button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    flex: 1, paddingVertical: 14, borderRadius: 10, alignItems: 'center',
+    elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4,
   },
-  cancelButton: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+  cancelButton: { backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E0E0E0' },
+  cancelButtonText: { color: '#666', fontSize: 15, fontWeight: '600', fontFamily: 'Montserrat-Medium' },
+  saveButton: { backgroundColor: '#0D3E86' },
+  saveButtonText: { color: '#fff', fontSize: 15, fontWeight: 'bold', fontFamily: 'Montserrat-Bold' },
+  // Image Styles
+  imagePickerBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F0F4F8', borderWidth: 1, borderColor: '#0D3E86', borderStyle: 'dashed',
+    borderRadius: 10, padding: 15, marginBottom: 15, gap: 8,
   },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 15,
-    fontWeight: '600',
-    fontFamily: 'Montserrat-Medium',
-  },
-  saveButton: {
-    backgroundColor: '#0D3E86',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    fontFamily: 'Montserrat-Bold',
-  },
+  imagePickerText: { fontSize: 14, color: '#0D3E86', fontFamily: 'Montserrat-Medium' },
+  previewImage: { width: '100%', height: 180, borderRadius: 10, marginBottom: 15 },
 });

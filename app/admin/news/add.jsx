@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity, TextInput, Platform, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../../../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AddNews() {
   const router = useRouter();
@@ -17,7 +18,8 @@ export default function AddNews() {
     date: '',
     views: 0,
     icon: 'document-text',
-    color: '#3b82f6'
+    color: '#3b82f6',
+    image: null, 
   });
 
   const categories = [
@@ -25,6 +27,26 @@ export default function AddNews() {
     { name: 'Events', color: '#a855f7', icon: 'calendar' },
     { name: 'Achievements', color: '#f59e0b', icon: 'trophy' }
   ];
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Denied", "Please allow access to your gallery to upload images.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9], 
+      quality: 0.3, 
+      base64: true, 
+    });
+
+    if (!result.canceled) {
+      setForm({ ...form, image: `data:image/jpeg;base64,${result.assets[0].base64}` });
+    }
+  };
 
   const handleSave = async () => {
     if (!form.title || !form.description) {
@@ -35,12 +57,14 @@ export default function AddNews() {
     setLoading(true);
     try {
       const selectedCat = categories.find(c => c.name === form.category);
+      
       await addDoc(collection(db, 'news'), {
         ...form,
         icon: selectedCat.icon,
         color: selectedCat.color,
         createdAt: new Date()
       });
+      
       Alert.alert('Success', 'News added successfully');
       router.back();
     } catch (error) {
@@ -50,7 +74,6 @@ export default function AddNews() {
     }
   };
 
-  // ✅ Format date for display
   const formatDate = (date) => {
     if (!date) return '';
     return date.toLocaleDateString('en-US', {
@@ -60,7 +83,6 @@ export default function AddNews() {
     });
   };
 
-  // ✅ Handle date change
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -94,7 +116,7 @@ export default function AddNews() {
             onChangeText={(text) => setForm({...form, title: text})}
           />
 
-          {/* ✅ CATEGORY SELECTION - SCROLLABLE */}
+          {/* CATEGORY SELECTION */}
           <Text style={styles.formLabel}>Category *</Text>
           <ScrollView 
             horizontal 
@@ -144,7 +166,18 @@ export default function AddNews() {
             textAlignVertical="top"
           />
 
-          {/* ✅ DATE PICKER */}
+          {/* IMAGE UPLOAD SECTION */}
+          <Text style={styles.formLabel}>Image (Optional)</Text>
+          <TouchableOpacity onPress={pickImage} style={styles.imagePickerBtn}>
+            <Ionicons name="image-outline" size={20} color="#0D3E86" />
+            <Text style={styles.imagePickerText}>{form.image ? "Change Image" : "Select Image"}</Text>
+          </TouchableOpacity>
+          
+          {form.image && (
+            <Image source={{ uri: form.image }} style={styles.previewImage} resizeMode="cover" />
+          )}
+
+          {/* DATE PICKER */}
           <Text style={styles.formLabel}>Date</Text>
           <TouchableOpacity 
             style={styles.dateButton}
@@ -254,7 +287,6 @@ const styles = StyleSheet.create({
     height: 100,
     paddingTop: 12,
   },
-  // ✅ DATE BUTTON
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -274,7 +306,6 @@ const styles = StyleSheet.create({
   datePlaceholder: {
     color: '#999',
   },
-  // ✅ SCROLLABLE CATEGORY CONTAINER
   categoryContainer: {
     flexDirection: 'row',
     paddingVertical: 4,
@@ -323,5 +354,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'Montserrat-Bold',
+  },
+  imagePickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F4F8',
+    borderWidth: 1,
+    borderColor: '#0D3E86',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    gap: 8,
+  },
+  imagePickerText: {
+    fontSize: 14,
+    color: '#0D3E86',
+    fontFamily: 'Montserrat-Medium',
+  },
+  previewImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 10,
+    marginBottom: 15,
   },
 });

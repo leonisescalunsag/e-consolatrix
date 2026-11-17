@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, Text, TextInput, ScrollView, TouchableOpacity, 
-  SafeAreaView, Animated, ActivityIndicator, Modal, Pressable 
+  SafeAreaView, Animated, ActivityIndicator, Modal, Pressable, Image 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { styles } from '../styles/NewsStyles';
 import { useFadeIn, useSlideUp, usePressAnimation } from '../hooks/useSlideAnimation';
 import { db } from '../config/firebase';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
-// ✅ NEWS CARD - Clickable with preview
 const NewsCard = ({ item, index, onPress }) => {
   const fadeAnim = useFadeIn(500, index * 100);
   const slideAnim = useSlideUp(30);
@@ -32,6 +31,15 @@ const NewsCard = ({ item, index, onPress }) => {
         onPressOut={pressOut}
         activeOpacity={0.9}
       >
+        {/* ✅ IMAGE SA CARD */}
+        {item.image && (
+          <Image 
+            source={{ uri: item.image }} 
+            style={{ width: '100%', height: 160, borderRadius: 12, marginBottom: 15 }} 
+            resizeMode="cover" 
+          />
+        )}
+
         <View style={styles.cardHeader}>
           <View style={[styles.categoryBadge, { backgroundColor: item.color + '20' }]}>
             <Text style={[styles.categoryText, { color: item.color }]}>{item.category}</Text>
@@ -54,7 +62,6 @@ const NewsCard = ({ item, index, onPress }) => {
   );
 };
 
-// ✅ NEWS DETAIL MODAL
 const NewsDetailModal = ({ visible, news, onClose }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
@@ -93,6 +100,15 @@ const NewsDetailModal = ({ visible, news, onClose }) => {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} style={styles.modalDescriptionContainer}>
+            {/* ✅ IMAGE SA MODAL (READ MORE) */}
+            {news.image && (
+              <Image 
+                source={{ uri: news.image }} 
+                style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 15 }} 
+                resizeMode="cover" 
+              />
+            )}
+            
             <Text style={styles.modalDescription}>{news.description}</Text>
           </ScrollView>
         </Animated.View>
@@ -101,7 +117,6 @@ const NewsDetailModal = ({ visible, news, onClose }) => {
   );
 };
 
-// ✅ TAB BUTTON
 const TabButton = ({ tab, active, onPress }) => {
   const { scaleAnim, pressIn, pressOut } = usePressAnimation();
   
@@ -119,7 +134,6 @@ const TabButton = ({ tab, active, onPress }) => {
   );
 };
 
-// ✅ TAB ICON (Bottom)
 const TabIcon = ({ icon, label, active, onPress }) => {
   const { scaleAnim, pressIn, pressOut } = usePressAnimation();
   
@@ -138,7 +152,6 @@ const TabIcon = ({ icon, label, active, onPress }) => {
   );
 };
 
-// ✅ MAIN COMPONENT
 export default function NewsScreen() {
   const [activeTab, setActiveTab] = useState('All news');
   const [news, setNews] = useState([]);
@@ -150,15 +163,13 @@ export default function NewsScreen() {
 
   const tabs = ['All news', 'Announcements', 'Events', 'Achievements'];
 
-  // ✅ FETCH & CACHE LOGIC
   useEffect(() => {
-    // 1. I-load muna yung naka-save sa phone (Offline Cache)
     const loadCachedNews = async () => {
       try {
         const cached = await AsyncStorage.getItem('cachedNews');
         if (cached) {
           setNews(JSON.parse(cached));
-          setLoading(false); // Matagal pa bago mag-fetch, kaya ipakita na agad yung cache
+          setLoading(false); 
         }
       } catch (e) {
         console.log('Cache error', e);
@@ -167,7 +178,6 @@ export default function NewsScreen() {
     
     loadCachedNews();
 
-    // 2. Mag-fetch sa Firebase (Realtime)
     const q = query(collection(db, 'news'), orderBy('createdAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
@@ -182,25 +192,21 @@ export default function NewsScreen() {
 
       if (newsData.length > 0) {
         setNews(newsData);
-        // 3. I-save sa phone memory para may offline copy
         await AsyncStorage.setItem('cachedNews', JSON.stringify(newsData));
       }
       setLoading(false);
     }, (error) => {
       console.error('Error fetching news:', error);
-      // Pag may error (walang internet), at may naka-display na (galing cache), ok lang.
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // ✅ FILTER BY CATEGORY
   const filteredByCategory = activeTab === 'All news' 
     ? news 
     : news.filter(item => item.category === activeTab);
 
-  // ✅ FILTER BY SEARCH
   const filteredNews = searchQuery.trim() === ''
     ? filteredByCategory
     : filteredByCategory.filter(item =>

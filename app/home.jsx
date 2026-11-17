@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { collection, onSnapshot, orderBy, query, limit } from 'firebase/firestore';
 
-// ✅ MENU DATA (Pinaikli ang News & Updates)
+// ✅ MENU DATA (Binalik sa 7 items)
 const MENU_DATA = [
   { id: '1', title: 'School History', icon: 'book-outline', color: '#FF0000', route: '/history' },
   { id: '2', title: 'Courses and Strands', icon: 'school-outline', color: '#FFD700', route: '/courses' }, 
